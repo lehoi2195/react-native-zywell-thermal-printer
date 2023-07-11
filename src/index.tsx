@@ -1,22 +1,10 @@
-import { NativeModules, Platform } from 'react-native';
+import { NativeModules } from 'react-native';
 
-const LINKING_ERROR =
-  `The package 'react-native-zywell-thermal-printer' doesn't seem to be linked. Make sure: \n\n` +
-  Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
-  '- You rebuilt the app after installing the package\n' +
-  '- You are not using Expo Go\n';
+const { ZywellThermalPrinterModule: ZywellPrinter } = NativeModules;
 
-const ZywellThermalPrinter = NativeModules.ZywellThermalPrinter
-  ? NativeModules.ZywellThermalPrinter
-  : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
-      }
-    );
-
+// example
 export function multiply(a: number, b: number): Promise<number> {
-  return ZywellThermalPrinter.multiply(a, b);
+  return ZywellPrinter.multiply(a, b);
 }
+
+export default ZywellPrinter;
