@@ -1,10 +1,13 @@
 package com.zywellthermalprinter;
 
 import androidx.annotation.NonNull;
+
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.module.annotations.ReactModule;
 
 import net.posprinter.posprinterface.PrinterBinder;
@@ -14,6 +17,7 @@ import net.posprinter.service.PrinterConnectionsService;
 import net.posprinter.utils.BitmapProcess;
 import net.posprinter.utils.BitmapToByteData;
 import net.posprinter.utils.DataForSendToPrinterPos58;
+import net.posprinter.utils.DataForSendToPrinterPos80;
 import net.posprinter.utils.StringUtils;
 
 import android.content.ComponentName;
@@ -48,6 +52,7 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
+      printerBinder = null;
       Log.e("printerBinder", "disconnect");
     }
   };
@@ -131,19 +136,16 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
       printerBinder.connectNetPort(ip_address, new TaskCallback() {
         @Override
         public void OnSucceed() {
-          Toast.makeText(reactContext, "Connect Success " + ip_address, Toast.LENGTH_SHORT).show();
           promise.resolve(ip_address);
         }
 
         @Override
         public void OnFailed() {
-          Toast.makeText(reactContext, "Connect fail " + ip_address, Toast.LENGTH_SHORT).show();
-          promise.reject(new Exception("Connect_Failed"));
+          promise.reject(new Exception("CONNECT_NET_FAIL"));
         }
       });
     } else {
-      Toast.makeText(reactContext, "ip_address null", Toast.LENGTH_SHORT).show();
-      promise.reject(new Exception("IP_NULL"));
+      promise.reject(new Exception("CONNECT_NET_FAIL_IP_NULL"));
     }
   }
 
@@ -153,62 +155,69 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
       printerBinder.connectBtPort(address, new TaskCallback() {
         @Override
         public void OnSucceed() {
-          Toast.makeText(reactContext, "Connect BLE Success", Toast.LENGTH_SHORT).show();
           promise.resolve(address);
         }
 
         @Override
         public void OnFailed() {
-          Toast.makeText(reactContext, "Connect BLE Fail", Toast.LENGTH_SHORT).show();
-          promise.reject(new Exception("Connect_BLE_Failed"));
+          promise.reject(new Exception("CONNECT_BLE_FAIL"));
         }
       });
     } else {
-      Toast.makeText(reactContext, "Connect BLE fail address null", Toast.LENGTH_SHORT).show();
-      promise.reject(new Exception("ADDRESS_NULL"));
+      promise.reject(new Exception("CONNECT_BLE_FAIL_IP_NULL"));
     }
 
   }
 
   @ReactMethod
-  public void printPic(String address, String imagePath, final Promise promise) {
+  public void printPic(String address, String imagePath, final ReadableMap options, final Promise promise) {
     Uri imageUri = Uri.parse(imagePath);
     String realPath = imageUri.getPath();
 
+    int size = options.getInt("size");
+    int width = options.getInt("width");
+
     Bitmap bitmap = BitmapFactory.decodeFile(realPath);
     if (bitmap != null && address != null) {
-      final Bitmap bitmap1 = BitmapProcess.compressBmpByYourWidth(bitmap, 384);
+      final Bitmap bitmap1 = BitmapProcess.compressBmpByYourWidth(bitmap, width);
       final Bitmap bitmapToPrint = convertGreyImg(bitmap1);
-      Toast.makeText(reactContext, "Start Print " + address, Toast.LENGTH_SHORT).show();
       printerBinder.writeDataByYouself(address, new TaskCallback() {
         @Override
         public void OnSucceed() {
-          Toast.makeText(reactContext, "Send Success", Toast.LENGTH_SHORT).show();
-          promise.resolve("Send_Success");
+          promise.resolve("SEND_SUCCESS");
         }
-
         @Override
         public void OnFailed() {
-          Toast.makeText(reactContext, "Send Error", Toast.LENGTH_SHORT).show();
-          promise.reject(new Exception("Send_Error"));
+          promise.reject(new Exception("SEND_ERROR"));
         }
       }, new ProcessData() {
         @Override
         public List<byte[]> processDataBeforeSend() {
           List<byte[]> list = new ArrayList<>();
-          list.add(DataForSendToPrinterPos58.initializePrinter());
+          list.add(DataForSendToPrinterPos80.initializePrinter());
           List<Bitmap> blist = new ArrayList<>();
           blist = BitmapProcess.cutBitmap(50, bitmapToPrint);
           for (int i = 0; i < blist.size(); i++) {
-            list.add(DataForSendToPrinterPos58.printRasterBmp(0, blist.get(i), BitmapToByteData.BmpType.Dithering, BitmapToByteData.AlignType.Left, 384));
+            if (size == 58) {
+              list.add(DataForSendToPrinterPos58.printRasterBmp(0, blist.get(i), BitmapToByteData.BmpType.Dithering, BitmapToByteData.AlignType.Left, width));
+            } else {
+              list.add(DataForSendToPrinterPos80.printRasterBmp(0, blist.get(i), BitmapToByteData.BmpType.Dithering, BitmapToByteData.AlignType.Left, width));
+            }
           }
-          list.add(DataForSendToPrinterPos58.printAndFeedLine());
+
+          if (size == 58) {
+            list.add(DataForSendToPrinterPos58.printAndFeedLine());
+          } else {
+            list.add(DataForSendToPrinterPos80.printAndFeedLine());
+          }
+          if (size == 80) {
+            list.add(DataForSendToPrinterPos80.selectCutPagerModerAndCutPager(0x42, 0x66));
+          }
           return list;
         }
       });
     } else {
-      promise.reject(new Exception("Print_Error: NOT_CONNECT_TO_PRINTER"));
-      Toast.makeText(reactContext, "Need connect first", Toast.LENGTH_SHORT).show();
+      promise.reject(new Exception("NOT_CONNECT_TO_PRINTER"));
     }
   }
 
@@ -218,14 +227,12 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
       printerBinder.writeDataByYouself(address, new TaskCallback() {
         @Override
         public void OnSucceed() {
-          Toast.makeText(reactContext, "Print Success", Toast.LENGTH_SHORT).show();
-          promise.resolve("Print_Success");
+          promise.resolve("PRINT_SUCCESS");
         }
 
         @Override
         public void OnFailed() {
-          Toast.makeText(reactContext, "Print Fail", Toast.LENGTH_SHORT).show();
-          promise.reject(new Exception("Print Error"));
+          promise.reject(new Exception("PRINT_FAIL"));
         }
       }, new ProcessData() {
         @Override
@@ -238,17 +245,14 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
         }
       });
     } else {
-      Toast.makeText(reactContext, "Not Connect", Toast.LENGTH_SHORT).show();
-      promise.reject(new Exception("Print Error: Not Connect"));
+      promise.reject(new Exception("PRINT_FAIL_NOT_CONNECT"));
     }
   }
 
   @ReactMethod
   public boolean isConnect(String ip) {
     if (ip != null) {
-      boolean status = printerBinder.isConnect(ip);
-      Log.e("PrinterConnect", "isConnect ip: " + ip + " --- " + status);
-      return status;
+      return printerBinder.isConnect(ip);
     } else {
       return false;
     }
@@ -265,14 +269,12 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
       printerBinder.disconnectCurrentPort(address, new TaskCallback() {
         @Override
         public void OnSucceed() {
-          Toast.makeText(reactContext, "Disconnect Port Success", Toast.LENGTH_SHORT).show();
-          promise.resolve("Disconnect_Port_Success");
+          promise.resolve("DISCONNECT_SUCCESS");
         }
 
         @Override
         public void OnFailed() {
-          Toast.makeText(reactContext, "Disconnect Port Fail", Toast.LENGTH_SHORT).show();
-          promise.reject(new Exception("Disconnect Port_Error"));
+          promise.reject(new Exception("DISCONNECT_FAIL"));
         }
       });
     }
@@ -282,16 +284,15 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void disconnectAll(final Promise promise) {
     printerBinder.disconnectAll(new TaskCallback() {
-      @Override
-      public void OnFailed() {
-        Toast.makeText(reactContext, "DisconnectAll Fail", Toast.LENGTH_SHORT).show();
-        promise.reject(new Exception("DisconnectAll_Error"));
-      }
 
       @Override
       public void OnSucceed() {
-        Toast.makeText(reactContext, "DisconnectAll Success", Toast.LENGTH_SHORT).show();
-        promise.resolve("DisconnectAll_Success");
+        promise.resolve("DISCONNECT_ALL_SUCCESS");
+      }
+
+      @Override
+      public void OnFailed() {
+        promise.reject(new Exception("DISCONNECT_ALL_FAIL"));
       }
     });
   }

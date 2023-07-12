@@ -17,10 +17,10 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 const printers: any[] = [
   // { address: 'DC:0D:51:C4:40:A0', type: 'BLE', copy: 2 },
-  // { address: 'DC:0D:51:08:14:30', type: 'BLE', copy: 1 },
   // { address: '10:22:33:12:85:19', type: 'BLE', copy: 1 },
-  { address: '192.168.0.43', type: 'LAN', copy: 1 },
-  // { address: '192.168.0.201', type: 'LAN', copy: 1 },
+  { address: 'DC:0D:51:08:14:30', type: 'BLE', copy: 1, size: 58 },
+  // { address: '192.168.1.210', type: 'LAN', copy: 1, size: 80 },
+  // { address: '192.168.0.43', type: 'LAN', copy: 1, size: 58 },
 ];
 
 const App = () => {
@@ -35,7 +35,6 @@ const App = () => {
           PERMISSIONS.ANDROID.BLUETOOTH_ADVERTISE,
           PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
         ]);
-        console.log('current  status', status);
         if (
           ['granted', 'unavailable'].includes(
             status[PERMISSIONS.ANDROID.BLUETOOTH_CONNECT]
@@ -59,24 +58,11 @@ const App = () => {
     requestBluetoothPermission();
   }, []);
 
-  const connectPrinter = async () => {
-    try {
-      if (printers[0]?.type === 'BLE') {
-        await ZywellPrinter.connectBT(printers[0]?.address);
-      }
-      if (printers[0]?.type === 'LAN') {
-        await ZywellPrinter.connectNet(printers[0].address);
-      }
-    } catch (error) {
-      console.log('current  error', error);
-    }
-  };
-
   const printFunction = async () => {
     const uri = await captureRef(refView, { format: 'png', quality: 1 });
     try {
       const connectJob = printers.map(async (printer) => {
-        ZywellPrinter.disconnectPort(printer.address);
+        await ZywellPrinter.disconnectPort(printer.address);
         setTimeout(() => {
           if (printer?.type === 'BLE') {
             ZywellPrinter.connectBT(printer.address).then(() =>
@@ -96,15 +82,19 @@ const App = () => {
     } catch (error) {}
   };
 
-  const printSample = async () => {
-    const uri = await captureRef(refView, { format: 'png', quality: 1 });
-    printReceiptMultipleTimes(printers[0], `${uri}`);
-  };
-
   const printReceiptMultipleTimes = async (printer: any, uri: string) => {
     const printTimes = Array(printer.copy).fill(0);
+    const options = {
+      size: printer.size,
+      width: printer.size === 58 ? 384 : 576,
+    };
+
     const printJobs = printTimes.map(() =>
-      ZywellPrinter.printPic(printer.address, uri)
+      ZywellPrinter.printPic(printer.address, uri, options)
+        .then(() => ZywellPrinter.disconnectPort(printer.address))
+        .catch(() => {
+          ZywellPrinter.disconnectPort(printer.address);
+        })
     );
     Promise.all(printJobs);
   };
@@ -113,16 +103,6 @@ const App = () => {
     <SafeAreaView style={Colors.lighter}>
       <StatusBar barStyle={'dark-content'} backgroundColor={Colors.lighter} />
       <ScrollView contentInsetAdjustmentBehavior="automatic">
-        <View>
-          <View style={[styles.v2, styles.aCenter]}>
-            <Text style={styles.size18}>{printers[0]?.address}</Text>
-            <Button color="green" onPress={connectPrinter} title={'connect'} />
-          </View>
-          <View style={styles.sCenter}>
-            <Button color="red" onPress={printSample} title="Print Sample" />
-          </View>
-        </View>
-
         <View style={styles.mV12} />
 
         <View style={styles.pd12}>
@@ -168,7 +148,7 @@ const styles = StyleSheet.create({
   },
   wrapImg: {
     width: Dimensions.get('window').width - 32,
-    height: 500,
+    height: 1000,
   },
   size18: {
     fontSize: 18,
