@@ -18,9 +18,9 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 const printers: any[] = [
   // { address: 'DC:0D:51:C4:40:A0', type: 'BLE', copy: 2 },
   // { address: '10:22:33:12:85:19', type: 'BLE', copy: 1 },
-  { address: 'DC:0D:51:08:14:30', type: 'BLE', copy: 1, size: 58 },
-  // { address: '192.168.1.210', type: 'LAN', copy: 1, size: 80 },
-  // { address: '192.168.0.43', type: 'LAN', copy: 1, size: 58 },
+  // { address: 'DC:0D:51:08:14:30', type: 'BLE', copy: 1, size: 58 },
+  { address: '192.168.1.210', type: 'LAN', copy: 1, size: 80 },
+  { address: '192.168.0.43', type: 'LAN', copy: 1, size: 58 },
 ];
 
 const App = () => {

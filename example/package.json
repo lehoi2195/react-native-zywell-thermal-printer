@@ -6,16 +6,18 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
-    "pods": "pod-install --quiet"
+    "pods": "pod-install --quiet",
+    "postinstall": "react-native setup-ios-permissions && pod-install"
   },
   "dependencies": {
     "@react-native-community/cli": "^11.3.5",
     "react": "18.2.0",
     "react-native": "0.71.3",
-    "react-native-permissions": "^3.8.3",
+    "react-native-permissions": "^3.8.4",
     "react-native-view-shot": "^3.7.0"
   },
   "devDependencies": {
+    "pod-install": "0.1.38",
     "@babel/core": "^7.20.0",
     "@babel/preset-env": "^7.20.0",
     "@babel/runtime": "^7.20.0",
@@ -24,5 +26,13 @@
     "@types/metro-config": "^0.76.3",
     "babel-plugin-module-resolver": "^5.0.0",
     "metro-react-native-babel-preset": "0.76.5"
-  }
+  },
+  "reactNativePermissionsIOS": [
+    "BluetoothPeripheral",
+    "Camera",
+    "LocationAccuracy",
+    "LocationAlways",
+    "LocationWhenInUse",
+    "Notifications"
+  ]
 }
