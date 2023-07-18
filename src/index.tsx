@@ -1,10 +1,52 @@
-import { NativeModules } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 
-const { ZywellThermalPrinterModule: ZywellPrinter } = NativeModules;
+const { ZywellThermalPrinter: ZywellPrinter } = NativeModules;
+export const PRINTER_TYPE = {
+  NET: 'IP',
+  BLUETOOTH: 'BLUETOOTH',
+};
 
-// example
-export function multiply(a: number, b: number): Promise<number> {
-  return ZywellPrinter.multiply(a, b);
+export function clearBuffer(address: string, type: string) {
+  if (Platform.OS === 'ios') {
+    if (type === PRINTER_TYPE.NET) {
+      ZywellPrinter.clearBufferNet(address);
+    }
+    if (type === PRINTER_TYPE.BLUETOOTH) {
+      ZywellPrinter.clearBufferBLE();
+    }
+  }
+
+  if (Platform.OS === 'android') {
+    ZywellPrinter.clearBuffer(address);
+  }
+}
+
+export function disconnectAddress(address: string, type: string) {
+  if (Platform.OS === 'ios') {
+    if (type === PRINTER_TYPE.NET) {
+      ZywellPrinter.disconnectNet(address);
+    }
+    if (type === PRINTER_TYPE.BLUETOOTH) {
+      ZywellPrinter.disconnectBLE(address);
+    }
+  }
+
+  if (Platform.OS === 'android') {
+    ZywellPrinter.disconnectPort(address);
+  }
+}
+
+export function printPic(
+  address: string,
+  imagePath: string,
+  opts: { size: number; width: number },
+  type: string
+) {
+  if (type === PRINTER_TYPE.BLUETOOTH && Platform.OS === 'ios') {
+    return ZywellPrinter.printPicBLE(address, imagePath, opts);
+  }
+
+  ZywellPrinter.printPic(address, imagePath, opts);
 }
 
 export default ZywellPrinter;

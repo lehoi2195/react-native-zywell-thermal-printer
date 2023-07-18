@@ -7,25 +7,54 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5E555C0D2413F4C50049A1A2 /* ZywellThermalPrinter.mm in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* ZywellThermalPrinter.mm */; };
+		105999192A6627A700F9B641 /* TscCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 1059990C2A6627A700F9B641 /* TscCommand.m */; };
+		1059991A2A6627A700F9B641 /* POSWIFIManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1059990D2A6627A700F9B641 /* POSWIFIManager.m */; };
+		1059991B2A6627A700F9B641 /* PosCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 105999102A6627A700F9B641 /* PosCommand.m */; };
+		1059991C2A6627A700F9B641 /* ImageTranster.m in Sources */ = {isa = PBXBuildFile; fileRef = 105999152A6627A700F9B641 /* ImageTranster.m */; };
+		1059991D2A6627A700F9B641 /* POSBLEManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 105999162A6627A700F9B641 /* POSBLEManager.m */; };
+		10A765D42A64E9CF00A83D6E /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10A765D32A64E9CF00A83D6E /* CoreBluetooth.framework */; };
+		10A765D62A64E9EA00A83D6E /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10A765D52A64E9EA00A83D6E /* CFNetwork.framework */; };
+		10A765D82A64E9F000A83D6E /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10A765D72A64E9F000A83D6E /* SystemConfiguration.framework */; };
+		10B9DAD92A664CF00011F3EE /* BLEManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 10B9DAD82A664CEA0011F3EE /* BLEManager.m */; };
+		5B65E669EACD1CEF18265843 /* Pods_ZywellThermalPrinter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03B14C61427CD287F4CBCC8E /* Pods_ZywellThermalPrinter.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		58B511D91A9E6C8500147676 /* CopyFiles */ = {
+		58B511D91A9E6C8500147676 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
 			);
+			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		03B14C61427CD287F4CBCC8E /* Pods_ZywellThermalPrinter.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ZywellThermalPrinter.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1059990B2A6627A700F9B641 /* POSBLEManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = POSBLEManager.h; sourceTree = "<group>"; };
+		1059990C2A6627A700F9B641 /* TscCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TscCommand.m; sourceTree = "<group>"; };
+		1059990D2A6627A700F9B641 /* POSWIFIManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = POSWIFIManager.m; sourceTree = "<group>"; };
+		1059990E2A6627A700F9B641 /* POSWIFIManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = POSWIFIManager.h; sourceTree = "<group>"; };
+		1059990F2A6627A700F9B641 /* PosCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PosCommand.h; sourceTree = "<group>"; };
+		105999102A6627A700F9B641 /* PosCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PosCommand.m; sourceTree = "<group>"; };
+		105999112A6627A700F9B641 /* TscCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TscCommand.h; sourceTree = "<group>"; };
+		105999132A6627A700F9B641 /* ImageTranster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageTranster.h; sourceTree = "<group>"; };
+		105999142A6627A700F9B641 /* POSSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = POSSDK.h; sourceTree = "<group>"; };
+		105999152A6627A700F9B641 /* ImageTranster.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageTranster.m; sourceTree = "<group>"; };
+		105999162A6627A700F9B641 /* POSBLEManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = POSBLEManager.m; sourceTree = "<group>"; };
+		10A765D32A64E9CF00A83D6E /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/CoreBluetooth.framework; sourceTree = DEVELOPER_DIR; };
+		10A765D52A64E9EA00A83D6E /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/CFNetwork.framework; sourceTree = DEVELOPER_DIR; };
+		10A765D72A64E9F000A83D6E /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
+		10B9DAD72A664CEA0011F3EE /* BLEManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BLEManager.h; sourceTree = "<group>"; };
+		10B9DAD82A664CEA0011F3EE /* BLEManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BLEManager.m; sourceTree = "<group>"; };
 		134814201AA4EA6300B7C361 /* libZywellThermalPrinter.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libZywellThermalPrinter.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		498DBEA6734CD83A6342381B /* Pods-ZywellThermalPrinter.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZywellThermalPrinter.debug.xcconfig"; path = "Target Support Files/Pods-ZywellThermalPrinter/Pods-ZywellThermalPrinter.debug.xcconfig"; sourceTree = "<group>"; };
 		B3E7B5881CC2AC0600A0062D /* ZywellThermalPrinter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZywellThermalPrinter.h; sourceTree = "<group>"; };
-		B3E7B5891CC2AC0600A0062D /* ZywellThermalPrinter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZywellThermalPrinter.mm; sourceTree = "<group>"; };
+		B3E7B5891CC2AC0600A0062D /* ZywellThermalPrinter.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = ZywellThermalPrinter.mm; sourceTree = "<group>"; };
+		CD0418ACFF163D9EEBF328B9 /* Pods-ZywellThermalPrinter.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZywellThermalPrinter.release.xcconfig"; path = "Target Support Files/Pods-ZywellThermalPrinter/Pods-ZywellThermalPrinter.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -33,12 +62,27 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				10A765D82A64E9F000A83D6E /* SystemConfiguration.framework in Frameworks */,
+				10A765D62A64E9EA00A83D6E /* CFNetwork.framework in Frameworks */,
+				10A765D42A64E9CF00A83D6E /* CoreBluetooth.framework in Frameworks */,
+				5B65E669EACD1CEF18265843 /* Pods_ZywellThermalPrinter.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		10A765D22A64E9CF00A83D6E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				10A765D72A64E9F000A83D6E /* SystemConfiguration.framework */,
+				10A765D52A64E9EA00A83D6E /* CFNetwork.framework */,
+				10A765D32A64E9CF00A83D6E /* CoreBluetooth.framework */,
+				03B14C61427CD287F4CBCC8E /* Pods_ZywellThermalPrinter.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		134814211AA4EA7D00B7C361 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -50,10 +94,34 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				10B9DAD72A664CEA0011F3EE /* BLEManager.h */,
+				10B9DAD82A664CEA0011F3EE /* BLEManager.m */,
+				105999132A6627A700F9B641 /* ImageTranster.h */,
+				105999152A6627A700F9B641 /* ImageTranster.m */,
+				1059990B2A6627A700F9B641 /* POSBLEManager.h */,
+				105999162A6627A700F9B641 /* POSBLEManager.m */,
+				1059990F2A6627A700F9B641 /* PosCommand.h */,
+				105999102A6627A700F9B641 /* PosCommand.m */,
+				105999142A6627A700F9B641 /* POSSDK.h */,
+				1059990E2A6627A700F9B641 /* POSWIFIManager.h */,
+				1059990D2A6627A700F9B641 /* POSWIFIManager.m */,
+				105999112A6627A700F9B641 /* TscCommand.h */,
+				1059990C2A6627A700F9B641 /* TscCommand.m */,
 				B3E7B5881CC2AC0600A0062D /* ZywellThermalPrinter.h */,
 				B3E7B5891CC2AC0600A0062D /* ZywellThermalPrinter.mm */,
 				134814211AA4EA7D00B7C361 /* Products */,
+				10A765D22A64E9CF00A83D6E /* Frameworks */,
+				BB79B95226D76FD42E97867D /* Pods */,
 			);
+			sourceTree = "<group>";
+		};
+		BB79B95226D76FD42E97867D /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				498DBEA6734CD83A6342381B /* Pods-ZywellThermalPrinter.debug.xcconfig */,
+				CD0418ACFF163D9EEBF328B9 /* Pods-ZywellThermalPrinter.release.xcconfig */,
+			);
+			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -63,9 +131,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "ZywellThermalPrinter" */;
 			buildPhases = (
+				B181419AC2A59C128E1D48FA /* [CP] Check Pods Manifest.lock */,
 				58B511D71A9E6C8500147676 /* Sources */,
 				58B511D81A9E6C8500147676 /* Frameworks */,
-				58B511D91A9E6C8500147676 /* CopyFiles */,
+				58B511D91A9E6C8500147676 /* Copy Files */,
 			);
 			buildRules = (
 			);
@@ -108,12 +177,42 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		B181419AC2A59C128E1D48FA /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ZywellThermalPrinter-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		58B511D71A9E6C8500147676 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B3E7B58A1CC2AC0600A0062D /* ZywellThermalPrinter.mm in Sources */,
+				1059991C2A6627A700F9B641 /* ImageTranster.m in Sources */,
+				105999192A6627A700F9B641 /* TscCommand.m in Sources */,
+				1059991A2A6627A700F9B641 /* POSWIFIManager.m in Sources */,
+				1059991D2A6627A700F9B641 /* POSBLEManager.m in Sources */,
+				1059991B2A6627A700F9B641 /* PosCommand.m in Sources */,
+				10B9DAD92A664CF00011F3EE /* BLEManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -217,6 +316,7 @@
 		};
 		58B511F01A9E6C8500147676 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 498DBEA6734CD83A6342381B /* Pods-ZywellThermalPrinter.debug.xcconfig */;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -233,6 +333,7 @@
 		};
 		58B511F11A9E6C8500147676 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = CD0418ACFF163D9EEBF328B9 /* Pods-ZywellThermalPrinter.release.xcconfig */;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",

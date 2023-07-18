@@ -1,12 +1,14 @@
+//
+//  RCTZywellThermalPrinterModule.h
+//  RNZywellThermalPrinter
+//
+//  Created by Le Hoi on 27/06/2023.
+//
 
-#ifdef RCT_NEW_ARCH_ENABLED
-#import "RNZywellThermalPrinterSpec.h"
-
-@interface ZywellThermalPrinter : NSObject <NativeZywellThermalPrinterSpec>
-#else
 #import <React/RCTBridgeModule.h>
+#import <CoreBluetooth/CoreBluetooth.h>
 
 @interface ZywellThermalPrinter : NSObject <RCTBridgeModule>
-#endif
-
+- (void)zyWellConnectPeripheral:(CBPeripheral *)peripheral;
 @end
+
