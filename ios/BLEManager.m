@@ -1,6 +1,6 @@
 //
 //  BLEManage.m
-//  
+//
 //
 //  Created by apple on 16/4/5.
 //  Copyright © 2016年 Admin. All rights reserved.
@@ -10,7 +10,6 @@
 #import <UIKit/UIKit.h>
 
 static BLEManager *shareManager = nil;
-
 @implementation BLEManager
 
 #pragma mark -
@@ -41,11 +40,11 @@ static BLEManager *shareManager = nil;
 #pragma mark 获取手机蓝牙状态
 - (BOOL)isLECapableHardware {
     NSString * state = nil;
-    
+
     int iState = (int)[_manager state];
-    
+
     NSLog(@"Central manager state: %i", iState);
-    
+
     switch ([_manager state]) {
         case CBCentralManagerStateUnsupported://不支持
             state = @"The platform/hardware doesn't support Bluetooth Low Energy.";
@@ -61,18 +60,18 @@ static BLEManager *shareManager = nil;
         case CBCentralManagerStateUnknown://未知状态
         default:
             return FALSE;
-            
+
     }
-    
+
     NSLog(@"Central manager state: %@", state);
-    
+
     return FALSE;
 }
 
 #pragma mark 开启蓝牙扫描-(可针对性扫描)
 - (void)startScan {
     if ([self isLECapableHardware]) {
-        
+
         if (_peripherals) {
             [_peripherals removeAllObjects];
             [_RSSIArray removeAllObjects];
@@ -81,21 +80,21 @@ static BLEManager *shareManager = nil;
             _RSSIArray = [NSMutableArray array];
         }
         _isScaning = YES;
-        
+
         BOOL result = [self checkConnectedPeripherals];
-        
+
         if (result) {
             return;
         }
-        
+
         [_manager scanForPeripheralsWithServices:nil options:nil];
-        
+
         // 针对性扫描  serviceUUIDs = [NSArray arrayWithObject:[CBUUID UUIDWithString:@"180D"]]
         // 其中  180D 就是对外公开的 1 级 服务UUID
 //        [_manager scanForPeripheralsWithServices:[NSArray arrayWithObject:[CBUUID UUIDWithString:@"6E40FFA0-B5A3-F393-E0A9-E50E24DCCA9E"]] options:nil];
-        
+
     } else {
-        
+
         if (self.scanBlock) {
             self.scanBlock(_peripherals);
             self.scanBlock(nil);
@@ -112,7 +111,7 @@ static BLEManager *shareManager = nil;
             [self connectPeripheral:per];
             return YES;
        // }
-        
+
     }
     return NO;
 }
@@ -131,7 +130,7 @@ static BLEManager *shareManager = nil;
 - (void)stopScan {
     _isScaning = NO;
     [_manager stopScan];
-    
+
     if (self.scanBlock) {
         self.scanBlock(_peripherals);
         self.scanBlock(nil);
@@ -193,11 +192,11 @@ static BLEManager *shareManager = nil;
         } else {
             [self startScan];
         }
-        
+
     } else {
         NSLog(@"手机蓝牙已关闭");
     }
-    
+
 }
 
 /*
@@ -211,7 +210,7 @@ static BLEManager *shareManager = nil;
 /// @param advertisementData Broadcast data
 /// @param RSSI Signal strength
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)aPeripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
-    
+
     NSArray *serviceUUIDs = [advertisementData objectForKey:CBAdvertisementDataServiceUUIDsKey];
     NSLog(@"aPeripheral========%@",aPeripheral.identifier.UUIDString);
     NSLog(@"APeripheralName==========%@",serviceUUIDs);
@@ -234,18 +233,18 @@ static BLEManager *shareManager = nil;
         //添加蓝牙对象到peripherals
         [_peripherals addObject:aPeripheral];
         [_RSSIArray addObject:RSSI];
-        
+
         if ([self.delegate respondsToSelector:@selector(BLEManagerDelegate:updatePeripheralList:RSSIList:)]) {
             [self.delegate BLEManagerDelegate:self updatePeripheralList:_peripherals RSSIList:_RSSIArray];
         }
-        
+
     }
-    
+
 //    //-------------------------------------------------------
 //    //发现所有的设备---打开注释就好
 //    [_peripherals addObject:aPeripheral];
 //    [_RSSIArray addObject:RSSI];
-//    
+//
 //    self.scanBlock(_peripherals);
 //    [[NSNotificationCenter defaultCenter] postNotificationName:kBlueToothDisCoverPeripheral object:nil];
 }
@@ -259,7 +258,7 @@ static BLEManager *shareManager = nil;
 /// @param central Central manager
 /// @param peripherals Device Information
 - (void)centralManager:(CBCentralManager *)central didRetrievePeripherals:(NSArray *)peripherals {
-    
+
     if([_peripherals count] >= 1) {
         _peripheral = [peripherals objectAtIndex:0];
 //        NSLog(@"当中央管理器调用检索列表中已知的外围设备。自动连接到第一个已知的外围........此设备名为==%@",_peripheral.name);
@@ -278,7 +277,7 @@ static BLEManager *shareManager = nil;
 /// @param aPeripheral Device Information
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)aPeripheral {
     NSLog(@"蓝牙连接成功");
-    
+
     [aPeripheral setDelegate:self];
     [aPeripheral discoverServices:nil];
     _isConnected = YES;
@@ -286,7 +285,7 @@ static BLEManager *shareManager = nil;
         self.connectBlock(YES);
         self.connectBlock = nil;
     }
-    
+
     [self stopScan];
 }
 
@@ -317,12 +316,12 @@ static BLEManager *shareManager = nil;
 ////        [self connectPeripheral:aPeripheral];
 //        [[[UIAlertView alloc] initWithTitle:@"device disconnect" message:nil delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil] show];
 //    }
-    
+
     if (self.connectBlock) {
         self.connectBlock(NO);
         self.connectBlock = nil;
     }
-    
+
     if ([self.delegate respondsToSelector:@selector(BLEManagerDelegate:disconnectPeripheral:isAutoDisconnect:)]) {
         [self.delegate BLEManagerDelegate:self disconnectPeripheral:aPeripheral isAutoDisconnect:_isAutoDisconnect];
     }
@@ -340,7 +339,7 @@ static BLEManager *shareManager = nil;
 /// @param aPeripheral Device Information
 /// @param error wrong description
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)aPeripheral error:(NSError *)error {
-    
+
     NSLog(@"Fail to connect to peripheral: %@ with error = %@", aPeripheral, [error localizedDescription]);
     if(_peripheral) {
         [_peripheral setDelegate:nil];
@@ -393,7 +392,7 @@ static BLEManager *shareManager = nil;
     if (service.isPrimary) {
 //        NSLog(@"service.isPrimary : %@", service.UUID);
     }
-    
+
     //-------------------------------------------------------
     //此处对服务UUID 进行 一对一 匹配，然后再遍历 其特征值，再对需要用到的特征UUID 进行一对一匹配
 //
@@ -405,28 +404,29 @@ static BLEManager *shareManager = nil;
         NSLog(@"jsjsjssjsjsjs");
         for (CBCharacteristic *aChar in service.characteristics)
         {
-            
+
             NSLog(@"jsjsjsjsjsskkk======%@",aChar);
             const CBCharacteristicProperties properties = [aChar properties];
-            
+
             // 消息通知类型的特征值
             if (CBCharacteristicPropertyNotify && properties) {
                 [aPeripheral setNotifyValue:YES forCharacteristic:aChar];
             }
-            
+
             // write 特征值
             if ((CBCharacteristicPropertyWrite && properties) || (CBCharacteristicPropertyWriteWithoutResponse && properties)) {
                 write_characteristic = aChar;
+                NSLog(@"Power write_characteristic : %@", aChar);
                 [aPeripheral readValueForCharacteristic:aChar];
                  NSLog(@"Power Characteristic : %@", aChar.UUID);
             }
-            
+
             // read 特征值
             if (CBCharacteristicPropertyRead && properties) {
                 read_characteristic = aChar;
                 [aPeripheral readValueForCharacteristic:aChar];
             }
-            
+
 //            NSLog(@"aChar.UUID==:%@",aChar.UUID);
 //            if ([aChar.UUID isEqual:[CBUUID UUIDWithString:@"49535343-8841-43F4-A8D4-ECBE34729BB3"]]) {
 //                // 匹配成功后：
@@ -450,7 +450,7 @@ static BLEManager *shareManager = nil;
 //                //此处可以对特征值进行保存
 //            }
         }
-        
+
     }
 }
 
@@ -481,34 +481,34 @@ static BLEManager *shareManager = nil;
 /// @param characteristic characteristic
 /// @param error wrong description
 - (void) peripheral:(CBPeripheral *)aPeripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
-    
+
     if (error) {
         NSLog(@"error = %@",error);
 //        [[[UIAlertView alloc] initWithTitle:@"获取数据失败" message:nil delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil] show];
-        
+
     }else {
-        
+
         NSLog(@"didUpdateValue :%@",characteristic.value);
         NSLog(@" ******* didUpdateValue--UUID :%@",characteristic.UUID);
         NSData *data = characteristic.value;
-        
+
         if (data == nil || [data isKindOfClass:[NSNull class]] || [data isEqual:@""]) {
             return;
         }
         if (data) {
-            
+
             // 收到数据Callback
             if (self.receiveBlock!=nil) {
                 self.receiveBlock(characteristic);
             }
-            
+
             [_dataArray addObject:[NSString stringWithFormat:@"收到:%@",data]];
         }
         if (_dataArray.count > 1000) {
             [_dataArray removeObjectAtIndex:0];
         }
-        
-        
+
+
         //-------------------------------------------------------
         //对接收到的数据进行处理
     }
@@ -524,11 +524,11 @@ static BLEManager *shareManager = nil;
 /// @param characteristic characteristic
 /// @param error wrong description
 - (void)peripheral:(CBPeripheral *)peripheral didWriteValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
-    
+
     if ([self.delegate respondsToSelector:@selector(BLEManagerDelegate:didWriteValueForCharacteristic:error:)]) {
         [self.delegate BLEManagerDelegate:self didWriteValueForCharacteristic:characteristic error:error];
     }
-    
+
     if (error)
     {
         NSLog(@"写入数据失败---Failed to write value for characteristic %@, reason: %@", characteristic, error);
@@ -540,7 +540,7 @@ static BLEManager *shareManager = nil;
 //        if ([[[characteristic value] description] isEqualToString:@"<440a0101>"]) {
 //            [self disconnectPeripheral:_peripheral];
 //        }
-        
+
     }
 }
 
@@ -581,7 +581,7 @@ static BLEManager *shareManager = nil;
     _writePeripheral = peripheral;
     NSData *data;
     data = [dataString dataUsingEncoding:EncodingType];
-    
+
     NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
     if (commandSendMode==0)
     {
@@ -603,89 +603,84 @@ static BLEManager *shareManager = nil;
 /// Send command, recommended
 /// @param data Data sent
 -(void)writeCommadnToPrinterWthitData:(NSData *)data{
-    
+
     if (commandSendMode==0)
     {
-        //数据分包
-        int BLE_SEND_MAX_LEN=20;
-        NSData *sendData=[NSData data];
-        for (int i=0; i<[data length]; i+=BLE_SEND_MAX_LEN)
-        {
-            if((i+BLE_SEND_MAX_LEN)<[data length]){
-                
-                NSRange range=NSMakeRange(i, BLE_SEND_MAX_LEN);
-                //NSString *rangeStr=[NSString stringWithFormat:@"%i%i",i,i+BLE_SEND_MAX_LEN];
-                NSData *subdata=[data subdataWithRange:range];
-                sendData=subdata;
-                //NSLog(@"---->-->---%i--%@",i,subdata);
-                
+        NSInteger oneTimeBytes = 150;
+        NSInteger count = [data length] / oneTimeBytes + 1;
+        for (int i=0; i<count; i++) {
+            if (i<count-1) {
+                NSData* data1=[data subdataWithRange:NSMakeRange(i*oneTimeBytes, oneTimeBytes)];
+                [_writePeripheral writeValue:data1 forCharacteristic:write_characteristic type:CBCharacteristicWriteWithoutResponse];
+                NSLog(@"=======================data1 %@",data1);
+                [NSThread sleepForTimeInterval:0.018f];
             }else{
-                NSRange range=NSMakeRange(i, (int)([data length]-i));
-                //NSString *rangeStr=[NSString stringWithFormat:@"%i,@%i",i,(int)([data length]-i)];
-                NSData *subdata=[data subdataWithRange:range];
-                sendData=subdata;
-               // NSLog(@"--------ss%@",subdata);
+                NSData* data2=[data subdataWithRange:NSMakeRange(i*oneTimeBytes, [data length]%oneTimeBytes)];
+                [_writePeripheral writeValue:data2 forCharacteristic:write_characteristic type:CBCharacteristicWriteWithoutResponse];
+                [NSThread sleepForTimeInterval:0.018f];
             }
-            [_writePeripheral writeValue:sendData forCharacteristic:write_characteristic type:CBCharacteristicWriteWithResponse];
-            
         }
-        
-        
-        
     }
     else
     {
         NSDictionary *dict;
-        
         dict = [NSDictionary dictionaryWithObjectsAndKeys: data,@"data",_writePeripheral,@"writePeripheral",nil];
         [_commandBuffer addObject:dict];
     }
-    
+
 }
-///Send instruction method with Callback, recommended
-/// @param data Data sent
+
 /// @param block Callback
 -(void)writeCommadnToPrinterWthitData:(NSData *)data withResponse:(BleManagerReceiveCallBack)block{
     self.receiveBlock = block;
-    if (commandSendMode==0)
-    {
-        //数据分包
-        int BLE_SEND_MAX_LEN=20;
-        NSData *sendData=[NSData data];
-        for (int i=0; i<[data length]; i+=BLE_SEND_MAX_LEN)
-        {
-            if((i+BLE_SEND_MAX_LEN)<[data length]){
-                
-                NSRange range=NSMakeRange(i, BLE_SEND_MAX_LEN);
-                //NSString *rangeStr=[NSString stringWithFormat:@"%i%i",i,i+BLE_SEND_MAX_LEN];
-                NSData *subdata=[data subdataWithRange:range];
-                sendData=subdata;
-                //NSLog(@"---->-->---%i--%@",i,subdata);
-                
-            }else{
-                NSRange range=NSMakeRange(i, (int)([data length]-i));
-                //NSString *rangeStr=[NSString stringWithFormat:@"%i,@%i",i,(int)([data length]-i)];
-                NSData *subdata=[data subdataWithRange:range];
-                sendData=subdata;
-                // NSLog(@"--------ss%@",subdata);
+    if (commandSendMode == 0) {
+        NSInteger oneTimeBytes = 150;
+        NSInteger count = [data length] / oneTimeBytes + 1;
+        for (int i = 0; i < count; i++) {
+            if (i < count - 1) {
+                NSData *data1 = [data subdataWithRange:NSMakeRange(i * oneTimeBytes, oneTimeBytes)];
+                [_writePeripheral writeValue:data1 forCharacteristic:write_characteristic type:CBCharacteristicWriteWithoutResponse];
+                [NSThread sleepForTimeInterval:0.015f];
+            } else {
+                NSData *data2 = [data subdataWithRange:NSMakeRange(i * oneTimeBytes, [data length] % oneTimeBytes)];
+                [_writePeripheral writeValue:data2 forCharacteristic:write_characteristic type:CBCharacteristicWriteWithoutResponse];
+                [NSThread sleepForTimeInterval:0.015f];
             }
-            [_writePeripheral writeValue:sendData forCharacteristic:write_characteristic type:CBCharacteristicWriteWithResponse];
-            
         }
-        
-        
-        
-    }
-    else
-    {
-        NSDictionary *dict;
-        
-        dict = [NSDictionary dictionaryWithObjectsAndKeys: data,@"data",_writePeripheral,@"writePeripheral",nil];
+    } else {
+        NSDictionary *dict = @{@"data": data, @"writePeripheral": _writePeripheral};
         [_commandBuffer addObject:dict];
     }
-    
-    
 }
+///Send instruction method with Callback, recommended
+/// @param data Data sent
+-(void)writeCommadnToPrinterWithData:(NSData *)data completion:(void (^)(BOOL success))completion{
+    if (commandSendMode == 0) {
+        NSInteger oneTimeBytes = 250;
+        NSInteger count = [data length] / oneTimeBytes + 1;
+        for (int i = 0; i < count; i++) {
+            if (i < count - 1) {
+                NSData *data1 = [data subdataWithRange:NSMakeRange(i * oneTimeBytes, oneTimeBytes)];
+                [_writePeripheral writeValue:data1 forCharacteristic:write_characteristic type:CBCharacteristicWriteWithoutResponse];
+                [NSThread sleepForTimeInterval:0.015f];
+            } else {
+                NSData *data2 = [data subdataWithRange:NSMakeRange(i * oneTimeBytes, [data length] % oneTimeBytes)];
+                [_writePeripheral writeValue:data2 forCharacteristic:write_characteristic type:CBCharacteristicWriteWithoutResponse];
+                [NSThread sleepForTimeInterval:0.015f];
+                if (completion) {
+                    completion(YES);
+                }
+            }
+        }
+    } else {
+        NSDictionary *dict = @{@"data": data, @"writePeripheral": _writePeripheral};
+        [_commandBuffer addObject:dict];
+        if (completion) {
+            completion(YES);
+        }
+    }
+}
+
 
 
 //#pragma mark - 发送TSC指令
@@ -729,7 +724,7 @@ static BLEManager *shareManager = nil;
     [self stopScan];
     [_peripherals removeAllObjects];
     if (_isConnected) {
-        
+
         [self disconnectPeripheral:_peripheral];
     }
     else
@@ -780,7 +775,7 @@ static BLEManager *shareManager = nil;
 //- (void)printAndFeed {
 //    Byte kValue[1] = {0};
 //    kValue[0] = 0x0A;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -843,7 +838,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 16;
 //    kValue[1] = 4;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -866,7 +861,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 16;
 //    kValue[1] = 5;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -892,7 +887,7 @@ static BLEManager *shareManager = nil;
 //    kValue[2] = n;
 //    kValue[3] = m;
 //    kValue[4] = t;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -909,12 +904,12 @@ static BLEManager *shareManager = nil;
 //    //[_writePeripheral writeValue:data forCharacteristic:write_characteristic type:CBCharacteristicWriteWithResponse];
 //}
 //
-//#pragma mark - 页模式下打印 
+//#pragma mark - 页模式下打印
 //- (void)printOnPageModel {
 //    Byte kValue[2] = {0};
 //    kValue[0] = 0x1B;
 //    kValue[1] = 0x0c;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -937,7 +932,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 32;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -960,7 +955,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 33;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -985,7 +980,7 @@ static BLEManager *shareManager = nil;
 //    kValue[1] = 36;
 //    kValue[2] = nL;
 //    kValue[3] = nH;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1008,7 +1003,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 37;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1032,19 +1027,19 @@ static BLEManager *shareManager = nil;
 //- (void)definCustomCharacter:(int)y c1:(int)c1 c2:(int)c2 dx:(NSArray *)points
 //{
 //    int length = 5 + points.count;
-//    
+//
 //    Byte kValue[length];
 //    kValue[0] = 27;
 //    kValue[1] = 38;
 //    kValue[2] = y;
 //    kValue[3] = c1;
 //    kValue[4] = c2;
-//    
+//
 //    for (int i = 0; i<points.count; i++) {
 //        NSString *str = points[i];
 //        kValue[5+i] = str.intValue;
 //    }
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1072,12 +1067,12 @@ static BLEManager *shareManager = nil;
 //    kValue[2] = m;
 //    kValue[3] = nL;
 //    kValue[4] = nH;
-//    
+//
 //    for (int i = 0; i<points.count; i++) {
 //        NSString *va = points[i];
 //        kValue[5+i] = va.intValue;
 //    }
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1092,7 +1087,7 @@ static BLEManager *shareManager = nil;
 //    }
 //
 //    //[_writePeripheral writeValue:data forCharacteristic:write_characteristic type:CBCharacteristicWriteWithResponse];
-//    
+//
 //}
 //
 ///**
@@ -1103,7 +1098,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 45;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1126,7 +1121,7 @@ static BLEManager *shareManager = nil;
 //    Byte kValue[2] = {0};
 //    kValue[0] = 27;
 //    kValue[1] = 50;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1151,7 +1146,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 51;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1176,7 +1171,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 61;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1200,7 +1195,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 63;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1224,7 +1219,7 @@ static BLEManager *shareManager = nil;
 //    Byte kValue[2] = {0};
 //    kValue[0] = 27;
 //    kValue[1] = 64;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1244,11 +1239,11 @@ static BLEManager *shareManager = nil;
 // * 21.设置横向跳格位置
 // */
 //- (void)setTabLocationWith:(NSArray *)points {
-//    
+//
 //    Byte kValue[3 + points.count];
 //    kValue[0] = 27;
 //    kValue[1] = 68;
-//    
+//
 //    for (int i = 0; i<points.count; i++) {
 //        NSString *str = points[i];
 //        kValue[2+i] = str.intValue;
@@ -1256,7 +1251,7 @@ static BLEManager *shareManager = nil;
 //            kValue[3+i] = 0;
 //        }
 //    }
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1280,7 +1275,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 69;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1304,7 +1299,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 71;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1328,7 +1323,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 74;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1351,7 +1346,7 @@ static BLEManager *shareManager = nil;
 //    Byte kValue[2] = {0};
 //    kValue[0] = 27;
 //    kValue[1] = 76;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1375,7 +1370,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 77;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1399,7 +1394,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 82;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1422,7 +1417,7 @@ static BLEManager *shareManager = nil;
 //    Byte kValue[2] = {0};
 //    kValue[0] = 27;
 //    kValue[1] = 83;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1446,7 +1441,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 84;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1470,7 +1465,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 86;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1510,7 +1505,7 @@ static BLEManager *shareManager = nil;
 //    kValue[7] = dxH;
 //    kValue[8] = dyL;
 //    kValue[9] = dyH;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1536,7 +1531,7 @@ static BLEManager *shareManager = nil;
 //    kValue[1] = 92;
 //    kValue[2] = nL;
 //    kValue[3] = nH;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1561,7 +1556,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 97;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1586,7 +1581,7 @@ static BLEManager *shareManager = nil;
 //    kValue[1] = 99;
 //    kValue[2] = 51;
 //    kValue[3] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1612,7 +1607,7 @@ static BLEManager *shareManager = nil;
 //    kValue[1] = 99;
 //    kValue[2] = 52;
 //    kValue[3] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1637,7 +1632,7 @@ static BLEManager *shareManager = nil;
 //    kValue[1] = 99;
 //    kValue[2] = 53;
 //    kValue[3] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1661,7 +1656,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 100;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1687,7 +1682,7 @@ static BLEManager *shareManager = nil;
 //    kValue[2] = m;
 //    kValue[3] = t1;
 //    kValue[4] = t2;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1711,7 +1706,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 116;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1735,7 +1730,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 27;
 //    kValue[1] = 123;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1761,10 +1756,10 @@ static BLEManager *shareManager = nil;
 //    kValue[1] = 112;
 //    kValue[2] = n;
 //    kValue[3] = m;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
-//    
+//
 //    if (commandSendMode==0)
 //    {
 //        [_writePeripheral writeValue:data forCharacteristic:write_characteristic type:CBCharacteristicWriteWithResponse];
@@ -1786,12 +1781,12 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 28;
 //    kValue[1] = 113;
 //    kValue[2] = n;
-//    
+//
 //    for (int i = 0; i<points.count; i++) {
 //        NSString *str = points[i];
 //        kValue[3+i] = str.intValue;
 //    }
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1814,7 +1809,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 29;
 //    kValue[1] = 33;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1838,7 +1833,7 @@ static BLEManager *shareManager = nil;
 //    kValue[1] = 36;
 //    kValue[2] = nL;
 //    kValue[3] = nH;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1862,13 +1857,13 @@ static BLEManager *shareManager = nil;
 //    kValue[1] = 42;
 //    kValue[2] = x;
 //    kValue[3] = y;
-//    
+//
 //    for (int i = 0; i<points.count; i++) {
 //        NSString *str = points[i];
 //        kValue[4+i] = str.intValue;
 //    }
-//    
-//    
+//
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1895,7 +1890,7 @@ static BLEManager *shareManager = nil;
 //    kValue[4] = pH;
 //    kValue[5] = n;
 //    kValue[6] = m;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1918,7 +1913,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 29;
 //    kValue[1] = 47;
 //    kValue[2] = m;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1940,7 +1935,7 @@ static BLEManager *shareManager = nil;
 //    Byte kValue[2] = {0};
 //    kValue[0] = 29;
 //    kValue[1] = 58;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1963,7 +1958,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 29;
 //    kValue[1] = 66;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -1986,7 +1981,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 29;
 //    kValue[1] = 72;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2010,7 +2005,7 @@ static BLEManager *shareManager = nil;
 //    kValue[1] = 76;
 //    kValue[2] = nL;
 //    kValue[3] = nH;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2034,7 +2029,7 @@ static BLEManager *shareManager = nil;
 //    kValue[1] = 80;
 //    kValue[2] = x;
 //    kValue[3] = y;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2060,7 +2055,7 @@ static BLEManager *shareManager = nil;
 //    if (model == 1) {
 //        kValue[3] = n;
 //    }
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2084,7 +2079,7 @@ static BLEManager *shareManager = nil;
 //    kValue[1] = 87;
 //    kValue[2] = nL;
 //    kValue[3] = nH;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2108,7 +2103,7 @@ static BLEManager *shareManager = nil;
 //    kValue[1] = 92;
 //    kValue[2] = nL;
 //    kValue[3] =nH;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2133,7 +2128,7 @@ static BLEManager *shareManager = nil;
 //    kValue[2] = r;
 //    kValue[3] = t;
 //    kValue[4] = m;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2179,7 +2174,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 29;
 //    kValue[1] = 102;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2202,7 +2197,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 29;
 //    kValue[1] = 104;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2221,12 +2216,12 @@ static BLEManager *shareManager = nil;
 // * 60.打印条码
 // */
 //- (void)printBarCodeWithPoints:(int)m n:(int)n points:(NSArray *)points selectModel:(int)model{
-//    
+//
 //    Byte kValue[4+points.count];
 //    kValue[0] = 29;
 //    kValue[1] = 107;
 //    kValue[2] = m;
-//    
+//
 //    if (model == 0) {
 //        for (int i = 0; i<points.count; i++) {
 //            NSString *str = points[i];
@@ -2242,7 +2237,7 @@ static BLEManager *shareManager = nil;
 //            kValue[4+i] = str.intValue;
 //        }
 //    }
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2256,7 +2251,7 @@ static BLEManager *shareManager = nil;
 //        [_commandBuffer addObject:dict];
 //    }
 //    //[_writePeripheral writeValue:data forCharacteristic:write_characteristic type:CBCharacteristicWriteWithResponse];
-//    
+//
 //}
 ///**
 // * 61.返回状态
@@ -2267,7 +2262,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 29;
 //    kValue[1] = 114;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2302,12 +2297,12 @@ static BLEManager *shareManager = nil;
 //    kValue[5] = xH;
 //    kValue[6] = yL;
 //    kValue[7] = yH;
-//    
+//
 //    for (int i = 0; i<points.count; i++) {
 //        NSString *str = points[i];
 //        kValue[8+i] =str.intValue;
 //    }
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2330,7 +2325,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 29;
 //    kValue[1] = 119;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2354,7 +2349,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 28;
 //    kValue[1] = 33;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2376,7 +2371,7 @@ static BLEManager *shareManager = nil;
 //    Byte kValue[2] = {0};
 //    kValue[0] = 28;
 //    kValue[1] = 38;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2399,7 +2394,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 28;
 //    kValue[1] = 45;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2421,7 +2416,7 @@ static BLEManager *shareManager = nil;
 //    Byte kValue[2] = {0};
 //    kValue[0] = 28;
 //    kValue[1] = 46;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2445,12 +2440,12 @@ static BLEManager *shareManager = nil;
 //    kValue[1] = 50;
 //    kValue[2] = c1;
 //    kValue[3] = c2;
-//    
+//
 //    for (int i=0; i<points.count; i++) {
 //        NSString *str = points[i];
 //        kValue[4+i] = str.intValue;
 //    }
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2464,7 +2459,7 @@ static BLEManager *shareManager = nil;
 //        [_commandBuffer addObject:dict];
 //    }
 //    //[_writePeripheral writeValue:data forCharacteristic:write_characteristic type:CBCharacteristicWriteWithResponse];
-//    
+//
 //}
 ///**
 // * 69.设置汉字字符左右间距
@@ -2475,7 +2470,7 @@ static BLEManager *shareManager = nil;
 //    kValue[1] = 83;
 //    kValue[2] = n1;
 //    kValue[3] = n2;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2498,7 +2493,7 @@ static BLEManager *shareManager = nil;
 //    kValue[0] = 28;
 //    kValue[1] = 87;
 //    kValue[2] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    if (commandSendMode==0)
@@ -2523,7 +2518,7 @@ static BLEManager *shareManager = nil;
 //    kValue[1] = 66;
 //    kValue[2] = n;
 //    kValue[3] = t;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    //[_writePeripheral writeValue:data forCharacteristic:write_characteristic type:CBCharacteristicWriteWithResponse];
@@ -2538,7 +2533,7 @@ static BLEManager *shareManager = nil;
 //    kValue[2] = m;
 //    kValue[3] = t;
 //    kValue[4] = n;
-//    
+//
 //    NSData *data = [NSData dataWithBytes:&kValue length:sizeof(kValue)];
 //    NSLog(@"%@",[NSString stringWithFormat:@"写入:%@",data]);
 //    //[_writePeripheral writeValue:data forCharacteristic:write_characteristic type:CBCharacteristicWriteWithResponse];
@@ -2548,9 +2543,9 @@ static BLEManager *shareManager = nil;
 // * 1.设置标签尺寸
 // */
 //- (void)PosaddSizeWidth:(int)width height:(int)height; {
-//    
+//
 //    NSString *sizeStr = [NSString stringWithFormat:@"SIZE %d mm,%d mm",width,height];
-//    
+//
 //    [self writeTSCWith:sizeStr];
 //
 //}
@@ -2558,7 +2553,7 @@ static BLEManager *shareManager = nil;
 // * 2.设置间隙长度
 // */
 //- (void)PosaddGap:(int)gap {
-//    
+//
 //    NSString *gapStr = [NSString stringWithFormat:@"GAP %d mm,0",gap];
 //    [self writeTSCWith:gapStr];
 //}
@@ -2831,7 +2826,7 @@ static BLEManager *shareManager = nil;
 -(void)SendCommandBuffer
 {
     float timeInterver=0.5;
-    
+
     for (int t=0;t<[_commandBuffer count];t++)
     {
         NSDictionary *dict;

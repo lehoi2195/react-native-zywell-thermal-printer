@@ -552,5 +552,21 @@ int p_6[] = { 0, 0x02 };
     return [[NSData alloc] initWithBytes:data length:length];
 }
 
++ (UIImage*)imgPadLeft:(NSInteger) left withSource: (UIImage*)source
+{
+    CGSize orgSize = [source size];
+    CGSize size = CGSizeMake(orgSize.width + [[NSNumber numberWithInteger: left] floatValue], orgSize.height);
+    UIGraphicsBeginImageContext(size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSetFillColorWithColor(context,
+                                   [[UIColor whiteColor] CGColor]);
+    CGContextFillRect(context, CGRectMake(0, 0, size.width, size.height));
+    [source drawInRect:CGRectMake(left, 0, orgSize.width, orgSize.height)
+             blendMode:kCGBlendModeNormal alpha:1.0];
+    UIImage *paddedImage =  UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return paddedImage;
+}
+
 
 @end

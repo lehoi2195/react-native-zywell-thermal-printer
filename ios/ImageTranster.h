@@ -42,5 +42,6 @@ typedef enum {
 +(unsigned char *)img_format_K_threshold:(unsigned char *) orgpixels
                                width:(NSInteger) xsize height:(NSInteger) ysize;
 +(NSData *)imgPixToTscCmd:(uint8_t *)src width:(NSInteger) width;
++(UIImage*)imgPadLeft:(NSInteger) left withSource: (UIImage*)source;
 
 @end

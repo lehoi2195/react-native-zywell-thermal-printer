@@ -25,7 +25,6 @@ typedef void (^BleManagerDiscoverPeripheralCallBack) (NSArray *peripherals);
 typedef void (^BleManagerConnectPeripheralCallBack) (BOOL isConnected);
 typedef void (^BleManagerReceiveCallBack) (CBCharacteristic *characteristic );
 
-
 /**
 Define the proxy BLEManagerDelegate
  */
@@ -177,9 +176,16 @@ Define the proxy BLEManagerDelegate
 /**
  Send instructions to the printer with callback method
  @param data Data sent
- @param block CallBack
+ @param block Completion block
  */
--(void)writeCommadnToPrinterWthitData:(NSData  *)data withResponse:(BleManagerReceiveCallBack)block;
+-(void)writeCommadnToPrinterWthitData:(NSData *)data withResponse:(BleManagerReceiveCallBack)block;
+
+/**
+ Send instructions to the printer with callback method
+ @param data Data sent
+ @param completion Completion block
+ */
+- (void)writeCommadnToPrinterWithData:(NSData *)data completion:(void (^)(BOOL success))completion;
 
 
 //Disconnect rescan of existing devices

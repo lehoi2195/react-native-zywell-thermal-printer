@@ -62,7 +62,7 @@ RCT_EXPORT_MODULE();
 }
 
 
-RCT_EXPORT_METHOD(connectNet:(NSString *)ip_address promise:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(connectNet:(NSString *)ip_address resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
     POSWIFIManager *wifiManager = wifiManagerDictionary[ip_address];
     if (!wifiManager) {
@@ -84,13 +84,13 @@ RCT_EXPORT_METHOD(connectNet:(NSString *)ip_address promise:(RCTPromiseResolveBl
 }
 
 
-RCT_EXPORT_METHOD(printPic:(NSString *)ipAddress imagePath:(NSString *)imagePath printerOptions:(NSDictionary *)options promise:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(printPic:(NSString *)ipAddress imagePath:(NSString *)imagePath printerOptions:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
     @try {
 
       POSWIFIManager *wifiManager = wifiManagerDictionary[ipAddress];
       if (!wifiManager) {
-          NSError *error = [NSError errorWithDomain:@"RCTZywellThermalPrinterErrorDomain" code:1002 userInfo:@{ NSLocalizedDescriptionKey: @"Printer is not connected" }];
+          NSError *error = [NSError errorWithDomain:@"ZywellModuleErrorDomain" code:1002 userInfo:@{ NSLocalizedDescriptionKey: @"Printer is not connected" }];
           reject(@"printer_not_connected", @"Printer is not connected", error);
           return;
       }
@@ -142,42 +142,64 @@ RCT_EXPORT_METHOD(disconnectNet:(NSString *)ipAddress) {
     }
 }
 
-RCT_EXPORT_METHOD(connectBT:(NSString *)address resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-
-    NSString *appendMsg = [NSString stringWithFormat:@"IOS: connect method call =======> Begin connecting to device at ip address %@", address];
-    NSLog(@"Trying to connect....%@",address);
-
-    [self.bleManager stopScan];
-    if (address) {
-//        CBPeripheral *peripheral = nil;
-//        NSMutableArray *foundDevice = self.bleManager.peripherals;
-//
-//        for (CBPeripheral *peripheralObj in foundDevice) {
-//            if ([peripheralObj.identifier.UUIDString isEqualToString:address]) {
-//                peripheral = peripheralObj;
-//                break;
-//            }
-//        }
-//        NSLog(@"=================================peripheral to find ....%@",peripheral);
-//        if (peripheral) {
-//            appendMsg = [NSString stringWithFormat:@"%@ ======== %@", appendMsg, @"Connecting ip is existed in list foundDevice => Start connecting..."];
-//            [self.bleManager connectPeripheral:peripheral];
-//            self.bleManager.writePeripheral = peripheral;
-//            resolve(peripheral);
-//        } else {
-//            appendMsg = [NSString stringWithFormat:@"%@ ======== %@", appendMsg, @"Connecting ip isn't existed in list foundDevice => Start scan then try to connect again."];
-            [self.bleManager startScanWithInterval:3 completion:self.bleManager.scanBlock];
-            NSLog(@"Scan to find ....%@",address);
-//        }
+RCT_EXPORT_METHOD(connectBLE:(NSString *)address resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    CBPeripheral *peripheral = nil;
+    __block BOOL foundPeripheral = NO;
+    for (CBPeripheral *discoveredPeripheral in self.bleManager.peripherals) {
+        if ([discoveredPeripheral.identifier.UUIDString isEqualToString:address]) {
+            peripheral = discoveredPeripheral;
+            foundPeripheral = YES;
+            break;
+        }
+    }
+    
+    if (peripheral) {
+        [self.bleManager connectPeripheral:peripheral completion:^(BOOL isConnected) {
+            NSLog(@"isConnected: %d", isConnected);
+            if (isConnected) {
+                resolve(address);
+            } else {
+                NSError *error = [NSError errorWithDomain:@"RCTZywellThermalPrinterErrorDomain" code:1002 userInfo:@{ NSLocalizedDescriptionKey: @"Failed to connect to the peripheral" }];
+                reject(@"failed_to_connect", @"Failed to connect to the peripheral", error);
+            }
+        }];
     } else {
-        NSError *error = [NSError errorWithDomain:@"RCTZywellThermalPrinterErrorDomain"
-                                                code:1003
-                                            userInfo:@{ NSLocalizedDescriptionKey: @"Invalid peripheral data" }];
-        reject(@"invalid_peripheral_data", @"Invalid peripheral data", error);
+        __block BOOL stopScanning = NO;
+        [self.bleManager startScanWithInterval:3 completion:^(NSArray *peripherals) {
+            if (stopScanning) {
+                return;
+            }
+            
+            CBPeripheral *scannedPeripheral = nil;
+            for (CBPeripheral *discoveredPeripheral in peripherals) {
+                if ([discoveredPeripheral.identifier.UUIDString isEqualToString:address]) {
+                    scannedPeripheral = discoveredPeripheral;
+                    foundPeripheral = YES;
+                    break;
+                }
+            }
+            
+            if (scannedPeripheral) {
+                [self.bleManager.peripherals addObject:scannedPeripheral];
+                [self.bleManager connectPeripheral:scannedPeripheral completion:^(BOOL isConnected) {
+                    if (isConnected) {
+                        stopScanning = YES;
+                        [self.bleManager stopScan];
+                        resolve(address);
+                    } else {
+                        NSError *error = [NSError errorWithDomain:@"RCTZywellThermalPrinterErrorDomain" code:1002 userInfo:@{ NSLocalizedDescriptionKey: @"Failed to connect to the peripheral" }];
+                    }
+                }];
+            } else {
+                if (!foundPeripheral) {
+                    NSError *error = [NSError errorWithDomain:@"RCTZywellThermalPrinterErrorDomain" code:1001 userInfo:@{ NSLocalizedDescriptionKey: @"Peripheral not found" }];
+                }
+            }
+        }];
     }
 }
 
-RCT_EXPORT_METHOD(printPicBLE:(NSString *)ipAddress imagePath:(NSString *)imagePath printerOptions:(NSDictionary *)options promise:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(printPicBLE:(NSString *)ipAddress imagePath:(NSString *)imagePath printerOptions:(NSDictionary *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
         int nWidth = [options[@"width"] intValue];
@@ -202,7 +224,7 @@ RCT_EXPORT_METHOD(printPicBLE:(NSString *)ipAddress imagePath:(NSString *)imageP
         // Create a new UIImage object
         NSInteger imgHeight = newImage.size.height;
         NSInteger imagWidth = newImage.size.width;
-        NSInteger width =  ((int)(((nWidth*0.86) + 7)/8))*8;
+        NSInteger width =  ((int)((nWidth + 7)/8))*8;
         CGSize size = CGSizeMake(width, imgHeight*width/imagWidth);
         UIImage *scaled = [ImageTranster imgWithImage:newImage scaledToFillSize:size];
 
@@ -212,30 +234,17 @@ RCT_EXPORT_METHOD(printPicBLE:(NSString *)ipAddress imagePath:(NSString *)imageP
 
         NSLog(@"dataToPrint %@", dataToPrint);
         [self.bleManager writeCommadnToPrinterWthitData:dataToPrint];
-        [self.bleManager writeCommadnToPrinterWthitData:[PosCommand selectCutPageModelAndCutpage:0]];
+        [self.bleManager writeCommadnToPrinterWithData:[PosCommand selectCutPageModelAndCutpage:0] completion:^(BOOL success) {
+            if (success) {
+                resolve(@"Print_Success");
+            }
+        }];
 
 
     } @catch(NSException *e){
         NSLog(@"ERROR IN PRINTING IMG: %@",[e callStackSymbols]);
     }
 }
-
-//RCT_EXPORT_METHOD(printPicBLE:(NSString *)ipAddress imagePath:(NSString *)imagePath printerOptions:(NSDictionary *)options promise:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
-//{
-//     UIImage *originalImage = [UIImage imageWithContentsOfFile:imagePath];
-//     int nWidth = [options[@"width"] intValue];
-//
-//     CGSize newSize = CGSizeMake(nWidth, originalImage.size.height * (nWidth / originalImage.size.width));
-//     UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
-//     [originalImage drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
-//     UIImage *resizedImage = UIGraphicsGetImageFromCurrentImageContext();
-//     UIGraphicsEndImageContext();
-//     NSData *dataToPrint = [PosCommand printRasteBmpWithM:RasterNolmorWH andImage:resizedImage andType:Threshold];
-//
-//     NSLog(@"dataToPrint %@", dataToPrint);
-//     [self.bleManager writeCommadnToPrinterWthitData:dataToPrint];
-//     [self.bleManager writeCommadnToPrinterWthitData:[PosCommand selectCutPageModelAndCutpage:0]];
-//}
 
 
 RCT_EXPORT_METHOD(disconnectBLE:(NSString *)address

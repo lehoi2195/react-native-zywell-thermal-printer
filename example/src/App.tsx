@@ -3,6 +3,7 @@ import {
   Button,
   Dimensions,
   Image,
+  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -20,14 +21,14 @@ import ZywellPrinter, {
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 const printers: any[] = [
-  // {
-  //   address: 'FDD3B2FA-8D0E-23B2-8FE7-A035684B2315',
-  //   type: PRINTER_TYPE.BLUETOOTH,
-  //   copy: 1,
-  //   size: 58,
-  // },
   {
-    address: '16B5C92F-5324-94D9-2523-E0825521C49B',
+    address: 'FDD3B2FA-8D0E-23B2-8FE7-A035684B2315', // MP583
+    type: PRINTER_TYPE.BLUETOOTH,
+    copy: 1,
+    size: 58,
+  },
+  {
+    address: '97B9F848-F452-31A1-AFF1-1ACFD356AF70', // SBH-K57
     type: PRINTER_TYPE.BLUETOOTH,
     copy: 1,
     size: 58,
@@ -72,7 +73,6 @@ const App = () => {
   }, []);
 
   const printMultipleTimes = async (printer: any, imagePath: string) => {
-    console.log('current  printer', printer);
     const printTimes = Array(printer?.copy).fill(0);
     const nWidth = printer?.size === 80 ? 576 : 384;
 
@@ -89,26 +89,61 @@ const App = () => {
 
   const printFunction = async () => {
     const imagePath = await captureRef(refView, { format: 'png', quality: 1 });
-    try {
-      const connectJob = printers.map((printer) => {
-        clearBuffer(printer?.address, printer?.type);
-        if (printer?.type === PRINTER_TYPE.BLUETOOTH) {
-          return ZywellPrinter.connectBT(printer?.address).then(() => {
-            console.log(
-              '==========================> current  connect OKKKKK printer',
-              printer?.address
-            );
-            return printMultipleTimes(printer, imagePath);
-          });
-        }
 
-        if (printer?.type === PRINTER_TYPE.NET) {
+    try {
+      if (Platform.OS === 'android') {
+        const connectJob = printers.map((printer) => {
+          clearBuffer(printer?.address, printer?.type);
+          if (printer?.type === PRINTER_TYPE.BLUETOOTH) {
+            return ZywellPrinter.connectBLE(printer?.address).then(() =>
+              setTimeout(() => {
+                printMultipleTimes(printer, imagePath);
+              }, 500)
+            );
+          }
+
+          if (printer?.type === PRINTER_TYPE.NET) {
+            return ZywellPrinter.connectNet(printer?.address).then(() =>
+              printMultipleTimes(printer, imagePath)
+            );
+          }
+        });
+        Promise.all(connectJob);
+      } else {
+        const lanPrinters = printers.filter(
+          (printer) => printer.type === PRINTER_TYPE.NET
+        );
+        console.log('current  lanPrinters', lanPrinters);
+        const blePrinters = printers.filter(
+          (printer) => printer.type === PRINTER_TYPE.BLUETOOTH
+        );
+        console.log('current  blePrinters', blePrinters);
+
+        const lanPrintJob = lanPrinters.map((printer) => {
+          clearBuffer(printer?.address, printer?.type);
           return ZywellPrinter.connectNet(printer?.address).then(() =>
             printMultipleTimes(printer, imagePath)
           );
+        });
+        Promise.all(lanPrintJob);
+
+        for (let i = 0; i < blePrinters.length; i++) {
+          const printer = blePrinters[i];
+          clearBuffer(printer?.address, printer?.type);
+          const res = await ZywellPrinter.connectBLE(printer?.address);
+          console.log('current  res', res);
+          const printTimes = Array(printer?.copy).fill(0);
+          const nWidth = printer?.size === 80 ? 576 : 384;
+          setTimeout(async () => {
+            for await (const item of printTimes) {
+              await ZywellPrinter.printPicBLE(printer?.address, imagePath, {
+                size: printer?.size,
+                width: nWidth,
+              });
+            }
+          }, 500);
         }
-      });
-      Promise.all(connectJob);
+      }
     } catch (error) {
       console.log('current  error', error);
     }

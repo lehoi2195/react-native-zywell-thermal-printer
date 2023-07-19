@@ -11,7 +11,6 @@
 		1059991A2A6627A700F9B641 /* POSWIFIManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1059990D2A6627A700F9B641 /* POSWIFIManager.m */; };
 		1059991B2A6627A700F9B641 /* PosCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 105999102A6627A700F9B641 /* PosCommand.m */; };
 		1059991C2A6627A700F9B641 /* ImageTranster.m in Sources */ = {isa = PBXBuildFile; fileRef = 105999152A6627A700F9B641 /* ImageTranster.m */; };
-		1059991D2A6627A700F9B641 /* POSBLEManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 105999162A6627A700F9B641 /* POSBLEManager.m */; };
 		10A765D42A64E9CF00A83D6E /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10A765D32A64E9CF00A83D6E /* CoreBluetooth.framework */; };
 		10A765D62A64E9EA00A83D6E /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10A765D52A64E9EA00A83D6E /* CFNetwork.framework */; };
 		10A765D82A64E9F000A83D6E /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10A765D72A64E9F000A83D6E /* SystemConfiguration.framework */; };
@@ -34,7 +33,6 @@
 
 /* Begin PBXFileReference section */
 		03B14C61427CD287F4CBCC8E /* Pods_ZywellThermalPrinter.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ZywellThermalPrinter.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		1059990B2A6627A700F9B641 /* POSBLEManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = POSBLEManager.h; sourceTree = "<group>"; };
 		1059990C2A6627A700F9B641 /* TscCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TscCommand.m; sourceTree = "<group>"; };
 		1059990D2A6627A700F9B641 /* POSWIFIManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = POSWIFIManager.m; sourceTree = "<group>"; };
 		1059990E2A6627A700F9B641 /* POSWIFIManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = POSWIFIManager.h; sourceTree = "<group>"; };
@@ -44,7 +42,6 @@
 		105999132A6627A700F9B641 /* ImageTranster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageTranster.h; sourceTree = "<group>"; };
 		105999142A6627A700F9B641 /* POSSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = POSSDK.h; sourceTree = "<group>"; };
 		105999152A6627A700F9B641 /* ImageTranster.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageTranster.m; sourceTree = "<group>"; };
-		105999162A6627A700F9B641 /* POSBLEManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = POSBLEManager.m; sourceTree = "<group>"; };
 		10A765D32A64E9CF00A83D6E /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/CoreBluetooth.framework; sourceTree = DEVELOPER_DIR; };
 		10A765D52A64E9EA00A83D6E /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/CFNetwork.framework; sourceTree = DEVELOPER_DIR; };
 		10A765D72A64E9F000A83D6E /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
@@ -98,8 +95,6 @@
 				10B9DAD82A664CEA0011F3EE /* BLEManager.m */,
 				105999132A6627A700F9B641 /* ImageTranster.h */,
 				105999152A6627A700F9B641 /* ImageTranster.m */,
-				1059990B2A6627A700F9B641 /* POSBLEManager.h */,
-				105999162A6627A700F9B641 /* POSBLEManager.m */,
 				1059990F2A6627A700F9B641 /* PosCommand.h */,
 				105999102A6627A700F9B641 /* PosCommand.m */,
 				105999142A6627A700F9B641 /* POSSDK.h */,
@@ -210,7 +205,6 @@
 				1059991C2A6627A700F9B641 /* ImageTranster.m in Sources */,
 				105999192A6627A700F9B641 /* TscCommand.m in Sources */,
 				1059991A2A6627A700F9B641 /* POSWIFIManager.m in Sources */,
-				1059991D2A6627A700F9B641 /* POSBLEManager.m in Sources */,
 				1059991B2A6627A700F9B641 /* PosCommand.m in Sources */,
 				10B9DAD92A664CF00011F3EE /* BLEManager.m in Sources */,
 			);
