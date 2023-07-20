@@ -2,6 +2,7 @@ package com.zywellthermalprinter;
 
 import androidx.annotation.NonNull;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -18,7 +19,9 @@ import net.posprinter.utils.BitmapProcess;
 import net.posprinter.utils.BitmapToByteData;
 import net.posprinter.utils.DataForSendToPrinterPos58;
 import net.posprinter.utils.DataForSendToPrinterPos80;
+import net.posprinter.utils.PosPrinterDev;
 import net.posprinter.utils.StringUtils;
+import net.posprinter.utils.RoundQueue;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -30,7 +33,7 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
+import android.util.Printer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +44,6 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
   private final ReactApplicationContext reactContext;
   public static final String NAME = "ZywellThermalPrinter";
   public static PrinterBinder printerBinder;
-
 
   ServiceConnection printerSerconnection = new ServiceConnection() {
     @Override
@@ -126,11 +128,6 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
   // Example method
   // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
-  public void multiply(double a, double b, Promise promise) {
-    promise.resolve(a * b);
-  }
-
-  @ReactMethod
   public void connectNet(String ip_address, final Promise promise) {
     if (ip_address != "") {
       printerBinder.connectNetPort(ip_address, new TaskCallback() {
@@ -147,6 +144,11 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
     } else {
       promise.reject(new Exception("CONNECT_NET_FAIL_IP_NULL"));
     }
+  }
+
+  @ReactMethod
+  public void multiply(double a, double b, Promise promise) {
+    promise.resolve(a * b);
   }
 
   @ReactMethod
@@ -250,35 +252,60 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public boolean isConnect(String ip) {
+  public void isConnect(String ip, Promise promise) {
     if (ip != null) {
-      return printerBinder.isConnect(ip);
+      boolean isConnected = printerBinder.isConnect(ip);
+      promise.resolve(isConnected);
     } else {
-      return false;
+      promise.reject("InvalidArgument", "IP address is null");
     }
   }
 
   @ReactMethod
-  public void clearBuffer(String ip) {
-    printerBinder.clearBuffer(ip);
+  public void readBuffer(String ip, Promise promise) {
+    if (ip != null) {
+      RoundQueue<byte[]> queue = printerBinder.readBuffer(ip);
+      if (queue != null && queue.realSize() > 0) {
+        // The queue is not empty
+        WritableMap result = Arguments.createMap();
+        result.putInt("queueSize", queue.realSize());
+        promise.resolve(result);
+      } else {
+        // The queue is empty
+        promise.resolve(null);
+      }
+    } else {
+      promise.reject("InvalidArgument", "IP address is null");
+    }
   }
 
   @ReactMethod
-  public void disconnectPort(String address, final Promise promise) {
-    if (address != "") {
-      printerBinder.disconnectCurrentPort(address, new TaskCallback() {
+  public void clearBuffer(String ip, Promise promise) {
+    if (ip != null) {
+      printerBinder.clearBuffer(ip);
+      promise.resolve(true);
+    } else {
+      promise.reject("InvalidArgument", "IP address is null");
+    }
+  }
+
+  @ReactMethod
+  public void disconnectPort(String ip, Promise promise) {
+    if (ip != null) {
+      printerBinder.disconnectCurrentPort(ip, new TaskCallback() {
         @Override
         public void OnSucceed() {
-          promise.resolve("DISCONNECT_SUCCESS");
+          promise.resolve(true);
         }
 
         @Override
         public void OnFailed() {
-          promise.reject(new Exception("DISCONNECT_FAIL"));
+          promise.reject("DisconnectFailed", "Failed to disconnect the printer");
         }
       });
+    } else {
+      promise.reject("InvalidArgument", "IP address is null");
     }
-
   }
 
   @ReactMethod
