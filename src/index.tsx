@@ -49,4 +49,14 @@ export function printPic(
   ZywellPrinter.printPic(address, imagePath, opts);
 }
 
+export function connectBLE(address: string) {
+  return new Promise((resolve, reject) => {
+    ZywellPrinter.connectBLE(address)
+      .then(() => {
+        resolve(address);
+      })
+      .catch(() => reject('ERROR_CONNECT'));
+  });
+}
+
 export default ZywellPrinter;

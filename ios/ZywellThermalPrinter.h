@@ -9,6 +9,5 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 
 @interface ZywellThermalPrinter : NSObject <RCTBridgeModule>
-- (void)zyWellConnectPeripheral:(CBPeripheral *)peripheral;
 @end
 

@@ -152,11 +152,12 @@ RCT_EXPORT_METHOD(connectBLE:(NSString *)address resolver:(RCTPromiseResolveBloc
             break;
         }
     }
-    
+
     if (peripheral) {
         [self.bleManager connectPeripheral:peripheral completion:^(BOOL isConnected) {
-            NSLog(@"isConnected: %d", isConnected);
+            NSLog(@"=========connectPeripheral peripheral %@", peripheral);
             if (isConnected) {
+                self.bleManager.writePeripheral = peripheral;
                 resolve(address);
             } else {
                 NSError *error = [NSError errorWithDomain:@"RCTZywellThermalPrinterErrorDomain" code:1002 userInfo:@{ NSLocalizedDescriptionKey: @"Failed to connect to the peripheral" }];
@@ -169,7 +170,7 @@ RCT_EXPORT_METHOD(connectBLE:(NSString *)address resolver:(RCTPromiseResolveBloc
             if (stopScanning) {
                 return;
             }
-            
+
             CBPeripheral *scannedPeripheral = nil;
             for (CBPeripheral *discoveredPeripheral in peripherals) {
                 if ([discoveredPeripheral.identifier.UUIDString isEqualToString:address]) {
@@ -178,22 +179,19 @@ RCT_EXPORT_METHOD(connectBLE:(NSString *)address resolver:(RCTPromiseResolveBloc
                     break;
                 }
             }
-            
+
             if (scannedPeripheral) {
+
                 [self.bleManager.peripherals addObject:scannedPeripheral];
                 [self.bleManager connectPeripheral:scannedPeripheral completion:^(BOOL isConnected) {
                     if (isConnected) {
+                        NSLog(@"=========connectPeripheral scannedPeripheral %@", scannedPeripheral);
                         stopScanning = YES;
                         [self.bleManager stopScan];
+                        self.bleManager.writePeripheral =scannedPeripheral;
                         resolve(address);
-                    } else {
-                        NSError *error = [NSError errorWithDomain:@"RCTZywellThermalPrinterErrorDomain" code:1002 userInfo:@{ NSLocalizedDescriptionKey: @"Failed to connect to the peripheral" }];
                     }
                 }];
-            } else {
-                if (!foundPeripheral) {
-                    NSError *error = [NSError errorWithDomain:@"RCTZywellThermalPrinterErrorDomain" code:1001 userInfo:@{ NSLocalizedDescriptionKey: @"Peripheral not found" }];
-                }
             }
         }];
     }
@@ -233,13 +231,23 @@ RCT_EXPORT_METHOD(printPicBLE:(NSString *)ipAddress imagePath:(NSString *)imageP
         NSData *dataToPrint = [ImageTranster convertEachLinePixToCmd:formatedData nWidth:size.width nHeight:size.height nMode:0];
 
         NSLog(@"dataToPrint %@", dataToPrint);
-        [self.bleManager writeCommadnToPrinterWthitData:dataToPrint];
-        [self.bleManager writeCommadnToPrinterWithData:[PosCommand selectCutPageModelAndCutpage:0] completion:^(BOOL success) {
-            if (success) {
-                resolve(@"Print_Success");
-            }
-        }];
-
+//        [self.bleManager writeCommadnToPrinterWthitData:dataToPrint];
+//        [self.bleManager writeCommadnToPrinterWithData:[PosCommand selectCutPageModelAndCutpage:0] completion:^(BOOL success) {
+//            if (success) {
+//                resolve(@"Print_Success");
+//            }
+//        }];
+        dispatch_queue_t printQueue = dispatch_queue_create("com.zywell.printQueue", NULL);
+        dispatch_async(printQueue, ^{
+            [self.bleManager writeCommadnToPrinterWthitData:dataToPrint];
+            [self.bleManager writeCommadnToPrinterWithData:[PosCommand selectCutPageModelAndCutpage:0] completion:^(BOOL success) {
+                if (success) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        resolve(@"Print_Success");
+                    });
+                }
+            }];
+        });
 
     } @catch(NSException *e){
         NSLog(@"ERROR IN PRINTING IMG: %@",[e callStackSymbols]);
