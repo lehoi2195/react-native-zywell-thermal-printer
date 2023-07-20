@@ -41,7 +41,19 @@
   "keywords": [
     "react-native",
     "ios",
-    "android"
+    "android",
+    "zywell",
+    "zywell-react-native",
+    "zywell-thermal-printer",
+    "zywell-printer",
+    "react-native-zywell-thermal-printer",
+    "react-native-zywell",
+    "zywell-sdk-react-native",
+    "sdk-zywell-react-native",
+    "zywell react native",
+    "react native zywell",
+    "zywell thermal printer",
+    "zywell printer"
   ],
   "repository": "https://github.com/lehoi2195/react-native-zywell-thermal-printer",
   "author": "hoi.le <hoi.le.van@sobanhang.com> (https://github.com/lehoi2195)",
