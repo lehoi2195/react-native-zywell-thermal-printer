@@ -39,7 +39,7 @@ import java.util.List;
 public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
 
   private final ReactApplicationContext reactContext;
-  public static final String NAME = "ZywellThermalPrinterModule";
+  public static final String NAME = "ZywellThermalPrinter";
   public static PrinterBinder printerBinder;
 
 
