@@ -150,7 +150,7 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void connectBT(String address, final Promise promise) {
+  public void connectBLE(String address, final Promise promise) {
     if (address != "") {
       printerBinder.connectBtPort(address, new TaskCallback() {
         @Override
