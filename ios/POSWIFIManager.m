@@ -79,6 +79,28 @@ static POSWIFIManager *shareManager = nil;
 
 }
 
+
+///Send instruction method with Callback, recommended
+/// @param data Data sent
+-(void)POSWriteDataWithCallback:(NSData *)data completion:(void (^)(BOOL success))completion{
+    if (_connectOK) {
+        if (commandSendMode==0){
+            [_sendSocket writeData:data withTimeout:-1 tag:0];
+            if (completion) {
+                completion(YES);
+            }
+
+        }
+        else{
+            [_commandBuffer addObject: data];
+            if (completion) {
+                completion(YES);
+            }
+        }
+    }
+}
+
+
 /**
 send messages
  @param str data

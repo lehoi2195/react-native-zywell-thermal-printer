@@ -76,6 +76,8 @@ enum {
 
 -(void)POSWriteCommandWithData:(NSData *)data withResponse:(POSWIFICallBackBlock)block;
 
+-(void)POSWriteDataWithCallback:(NSData *)data completion:(void (^)(BOOL success))completion;
+
 // 发送TSC完整指令
 - (void)POSSendMSGWith:(NSString *)str;
 

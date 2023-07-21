@@ -19,7 +19,6 @@ import net.posprinter.utils.BitmapProcess;
 import net.posprinter.utils.BitmapToByteData;
 import net.posprinter.utils.DataForSendToPrinterPos58;
 import net.posprinter.utils.DataForSendToPrinterPos80;
-import net.posprinter.utils.PosPrinterDev;
 import net.posprinter.utils.StringUtils;
 import net.posprinter.utils.RoundQueue;
 
@@ -33,10 +32,11 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Printer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @ReactModule(name = ZywellThermalPrinterModule.NAME)
 public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
@@ -199,6 +199,13 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
 
     int size = options.getInt("size");
     int width = options.getInt("width");
+    final boolean isDisconnect;
+    if (options.hasKey("is_disconnect")) {
+      isDisconnect = options.getBoolean("is_disconnect");
+    } else {
+      isDisconnect = false;
+    }
+
 
     Bitmap bitmap = BitmapFactory.decodeFile(realPath);
     if (bitmap != null && address != null) {
@@ -208,6 +215,25 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
         @Override
         public void OnSucceed() {
           promise.resolve("SEND_SUCCESS");
+          if (isDisconnect) {
+            TimerTask task = new TimerTask() {
+                @Override
+                public void run() {
+                    printerBinder.disconnectCurrentPort(address, new TaskCallback() {
+                        @Override
+                        public void OnSucceed() {
+                            Log.d("disconnectCurrentPort", "disconnect success");
+                        }
+
+                        @Override
+                        public void OnFailed() {
+                        }
+                    });
+                }
+            };
+            Timer timer = new Timer();
+            timer.schedule(task, 1000);
+          }
         }
         @Override
         public void OnFailed() {

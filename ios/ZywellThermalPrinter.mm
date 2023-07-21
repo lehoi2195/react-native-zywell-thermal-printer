@@ -104,6 +104,7 @@ RCT_EXPORT_METHOD(printPic:(NSString *)ipAddress imagePath:(NSString *)imagePath
       CIFilter *filter = [CIFilter filterWithName:@"CIColorControls"];
       [filter setValue:inputImage forKey:kCIInputImageKey];
       [filter setValue:@(0.0) forKey:kCIInputSaturationKey]; // Set saturation to 0 to remove color
+      BOOL isDisconnect = [options[@"is_disconnect"] boolValue]; // Get the boolean value from options dictionary
 
       // Apply the filter and get the output image
       CIImage *outputImage = [filter outputImage];
@@ -126,7 +127,17 @@ RCT_EXPORT_METHOD(printPic:(NSString *)ipAddress imagePath:(NSString *)imagePath
       NSData *dataToPrint = [ImageTranster convertEachLinePixToCmd:formatedData nWidth:size.width nHeight:size.height nMode:0];
 
       [wifiManager POSWriteCommandWithData:dataToPrint];
-      [wifiManager POSWriteCommandWithData:[PosCommand selectCutPageModelAndCutpage:0]];
+      [wifiManager POSWriteDataWithCallback:[PosCommand selectCutPageModelAndCutpage:0] completion:^(BOOL success) {
+          if (success && isDisconnect) {
+            NSLog(@"Printing Successs");
+            dispatch_async(dispatch_get_main_queue(), ^{
+              if (isDisconnect) {
+                [wifiManager POSDisConnect];
+              }
+            });
+          }
+        }
+      ];
 
 
     } @catch(NSException *e){
@@ -231,12 +242,6 @@ RCT_EXPORT_METHOD(printPicBLE:(NSString *)ipAddress imagePath:(NSString *)imageP
         NSData *dataToPrint = [ImageTranster convertEachLinePixToCmd:formatedData nWidth:size.width nHeight:size.height nMode:0];
 
         NSLog(@"dataToPrint %@", dataToPrint);
-//        [self.bleManager writeCommadnToPrinterWthitData:dataToPrint];
-//        [self.bleManager writeCommadnToPrinterWithData:[PosCommand selectCutPageModelAndCutpage:0] completion:^(BOOL success) {
-//            if (success) {
-//                resolve(@"Print_Success");
-//            }
-//        }];
         dispatch_queue_t printQueue = dispatch_queue_create("com.zywell.printQueue", NULL);
         dispatch_async(printQueue, ^{
             [self.bleManager writeCommadnToPrinterWthitData:dataToPrint];
