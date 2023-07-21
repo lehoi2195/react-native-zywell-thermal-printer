@@ -125,23 +125,44 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
     return mBitmap;
   }
 
-  // Example method
-  // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
   public void connectNet(String ip_address, final Promise promise) {
     if (ip_address != "") {
-      printerBinder.connectNetPort(ip_address, new TaskCallback() {
-        @Override
-        public void OnSucceed() {
-          promise.resolve(ip_address);
-        }
-
-        @Override
-        public void OnFailed() {
-          promise.reject(new Exception("CONNECT_NET_FAIL"));
-        }
-      });
-    } else {
+      boolean isConnected = printerBinder.isConnect(ip_address);
+      Log.d("isConnected", "readBuffer ip: " + ip_address + " isConnected: " + isConnected + "");
+      if (isConnected) {
+        printerBinder.disconnectCurrentPort(ip_address, new TaskCallback() {
+          @Override
+          public void OnSucceed() {
+            printerBinder.connectNetPort(ip_address, new TaskCallback() {
+              @Override
+              public void OnSucceed() {
+                promise.resolve(ip_address);
+              }
+              @Override
+              public void OnFailed() {
+                promise.reject(new Exception("CONNECT_NET_FAIL"));
+              }
+            });
+          }
+          @Override
+          public void OnFailed() {
+            promise.reject("DisconnectFailed", "Failed to disconnect the printer");
+          }
+        });
+      } else {
+        printerBinder.connectNetPort(ip_address, new TaskCallback() {
+          @Override
+          public void OnSucceed() {
+            promise.resolve(ip_address);
+          }
+          @Override
+          public void OnFailed() {
+            promise.reject(new Exception("CONNECT_NET_FAIL"));
+          }
+        });
+      }
+    }else{
       promise.reject(new Exception("CONNECT_NET_FAIL_IP_NULL"));
     }
   }
