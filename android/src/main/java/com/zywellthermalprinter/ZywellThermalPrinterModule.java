@@ -217,19 +217,19 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
           promise.resolve("SEND_SUCCESS");
           if (isDisconnect) {
             TimerTask task = new TimerTask() {
-                @Override
-                public void run() {
-                    printerBinder.disconnectCurrentPort(address, new TaskCallback() {
-                        @Override
-                        public void OnSucceed() {
-                            Log.d("disconnectCurrentPort", "disconnect success");
-                        }
+              @Override
+              public void run() {
+                printerBinder.disconnectCurrentPort(address, new TaskCallback() {
+                  @Override
+                  public void OnSucceed() {
+                    Log.d("disconnectCurrentPort", "disconnect success");
+                  }
 
-                        @Override
-                        public void OnFailed() {
-                        }
-                    });
-                }
+                  @Override
+                  public void OnFailed() {
+                  }
+                });
+              }
             };
             Timer timer = new Timer();
             timer.schedule(task, 1000);

@@ -131,9 +131,7 @@ RCT_EXPORT_METHOD(printPic:(NSString *)ipAddress imagePath:(NSString *)imagePath
           if (success && isDisconnect) {
             NSLog(@"Printing Successs");
             dispatch_async(dispatch_get_main_queue(), ^{
-              if (isDisconnect) {
                 [wifiManager POSDisConnect];
-              }
             });
           }
         }
