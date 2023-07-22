@@ -53,14 +53,6 @@ RCT_EXPORT_MODULE();
     return dispatch_get_main_queue();
 }
 
-- (void)zyWellConnectPeripheral:(CBPeripheral *)peripheral {
-    NSLog(@"OK=========================== %@", peripheral);
-    if (peripheral != nil) {
-        [self.bleManager connectPeripheral:peripheral];
-        self.bleManager.writePeripheral = peripheral;
-    }
-}
-
 
 RCT_EXPORT_METHOD(connectNet:(NSString *)ip_address resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
@@ -127,6 +119,10 @@ RCT_EXPORT_METHOD(printPic:(NSString *)ipAddress imagePath:(NSString *)imagePath
       NSData *dataToPrint = [ImageTranster convertEachLinePixToCmd:formatedData nWidth:size.width nHeight:size.height nMode:0];
 
       [wifiManager POSWriteCommandWithData:dataToPrint];
+      [wifiManager POSWriteCommandWithData:[PosCommand printAndFeedLine]];
+      [wifiManager POSWriteCommandWithData:[PosCommand printAndFeedLine]];
+      [wifiManager POSWriteCommandWithData:[PosCommand printAndFeedLine]];
+      [wifiManager POSWriteCommandWithData:[PosCommand printAndFeedLine]];
       [wifiManager POSWriteDataWithCallback:[PosCommand selectCutPageModelAndCutpage:0] completion:^(BOOL success) {
           if (success && isDisconnect) {
             NSLog(@"Printing Successs");
