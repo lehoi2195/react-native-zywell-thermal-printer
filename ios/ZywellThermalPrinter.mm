@@ -127,10 +127,10 @@ RCT_EXPORT_METHOD(printPic:(NSString *)ipAddress imagePath:(NSString *)imagePath
       [wifiManager POSWriteCommandWithData:[PosCommand printAndFeedLine]];
       [wifiManager POSWriteDataWithCallback:[PosCommand selectCutPageModelAndCutpage:0] completion:^(BOOL success) {
           if (success && isDisconnect) {
-            NSLog(@"Printing Successs");
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [wifiManager POSDisConnect];
-            });
+              dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC));
+              dispatch_after(popTime, dispatch_get_main_queue(), ^{
+                  [wifiManager POSDisConnect];
+              });
           }
         }
       ];
