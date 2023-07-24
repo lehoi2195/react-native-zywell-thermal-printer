@@ -13,6 +13,7 @@
 
 @property (nonatomic, strong) POSWIFIManager *wifiManager;
 @property (strong, nonatomic) BLEManager *bleManager;
+@property (nonatomic, strong) NSMutableArray<CBPeripheral *> *connectedPeripherals;
 
 @end
 
@@ -44,6 +45,7 @@ RCT_EXPORT_MODULE();
     if (self = [super init]) {
         wifiManagerDictionary = [NSMutableDictionary dictionary];
         _bleManager.delegate = self;
+        _connectedPeripherals = [NSMutableArray array];
     }
     return self;
 }
@@ -148,6 +150,7 @@ RCT_EXPORT_METHOD(disconnectNet:(NSString *)ipAddress) {
 }
 
 RCT_EXPORT_METHOD(connectBLE:(NSString *)address resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    [self.bleManager stopScan];
     CBPeripheral *peripheral = nil;
     __block BOOL foundPeripheral = NO;
     for (CBPeripheral *discoveredPeripheral in self.bleManager.peripherals) {
@@ -163,6 +166,7 @@ RCT_EXPORT_METHOD(connectBLE:(NSString *)address resolver:(RCTPromiseResolveBloc
             NSLog(@"=========connectPeripheral peripheral %@", peripheral);
             if (isConnected) {
                 self.bleManager.writePeripheral = peripheral;
+                [self.connectedPeripherals addObject:peripheral];
                 resolve(address);
             } else {
                 NSError *error = [NSError errorWithDomain:@"RCTZywellThermalPrinterErrorDomain" code:1002 userInfo:@{ NSLocalizedDescriptionKey: @"Failed to connect to the peripheral" }];
@@ -194,6 +198,7 @@ RCT_EXPORT_METHOD(connectBLE:(NSString *)address resolver:(RCTPromiseResolveBloc
                         stopScanning = YES;
                         [self.bleManager stopScan];
                         self.bleManager.writePeripheral =scannedPeripheral;
+                        [self.connectedPeripherals addObject:scannedPeripheral];
                         resolve(address);
                     }
                 }];
@@ -253,24 +258,22 @@ RCT_EXPORT_METHOD(printPicBLE:(NSString *)ipAddress imagePath:(NSString *)imageP
     }
 }
 
-
 RCT_EXPORT_METHOD(disconnectBLE:(NSString *)address
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
-    NSLog(@"Trying to disconnect device with address: %@", address);
-    CBPeripheral *peripheral = nil;
-    NSMutableArray *foundDevice = self.bleManager.peripherals;
-
-    for (CBPeripheral *peripheralObj in foundDevice) {
-        if ([peripheralObj.identifier.UUIDString isEqualToString:address]) {
-            peripheral = peripheralObj;
+    CBPeripheral *peripheralToRemove = nil;
+    NSLog(@"Bluetooth isconnected %@", self.connectedPeripherals);
+    for (CBPeripheral *connectedPeripheral in self.connectedPeripherals) {
+        if ([connectedPeripheral.identifier.UUIDString isEqualToString:address]) {
+            peripheralToRemove = connectedPeripheral;
             break;
         }
     }
 
-    if (peripheral) {
-        [self.bleManager disconnectPeripheral:peripheral];
+    if (peripheralToRemove) {
+        [self.bleManager disconnectPeripheral:peripheralToRemove];
+        [self.connectedPeripherals removeObject:peripheralToRemove];
         resolve(nil);
         NSLog(@"Bluetooth device with address %@ disconnected successfully.", address);
     } else {

@@ -613,11 +613,11 @@ static BLEManager *shareManager = nil;
                 NSData* subData1=[data subdataWithRange:NSMakeRange(i*oneTimeBytes, oneTimeBytes)];
                 [_writePeripheral writeValue:subData1 forCharacteristic:write_characteristic type:CBCharacteristicWriteWithoutResponse];
                 NSLog(@"===== subData%@",subData1);
-                [NSThread sleepForTimeInterval:0.018f];
+                [NSThread sleepForTimeInterval:0.02f];
             }else{
                 NSData* subData2=[data subdataWithRange:NSMakeRange(i*oneTimeBytes, [data length]%oneTimeBytes)];
                 [_writePeripheral writeValue:subData2 forCharacteristic:write_characteristic type:CBCharacteristicWriteWithoutResponse];
-                [NSThread sleepForTimeInterval:0.018f];
+                [NSThread sleepForTimeInterval:0.02f];
             }
         }
     }
