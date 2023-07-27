@@ -99,6 +99,7 @@ RCT_EXPORT_METHOD(printPic:(NSString *)ipAddress imagePath:(NSString *)imagePath
       [filter setValue:inputImage forKey:kCIInputImageKey];
       [filter setValue:@(0.0) forKey:kCIInputSaturationKey]; // Set saturation to 0 to remove color
       BOOL isDisconnect = [options[@"is_disconnect"] boolValue]; // Get the boolean value from options dictionary
+      BOOL isResolve = [options[@"is_resolve"] boolValue]; // Get the boolean value from options dictionary
 
       // Apply the filter and get the output image
       CIImage *outputImage = [filter outputImage];
@@ -132,7 +133,9 @@ RCT_EXPORT_METHOD(printPic:(NSString *)ipAddress imagePath:(NSString *)imagePath
                   [wifiManager POSDisConnect];
               });
           }
-          resolve(@(YES));
+          if(suceess && isResolve){
+              resolve(@(YES));
+          }
         }
       ];
 
