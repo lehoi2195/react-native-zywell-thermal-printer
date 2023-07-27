@@ -132,11 +132,14 @@ RCT_EXPORT_METHOD(printPic:(NSString *)ipAddress imagePath:(NSString *)imagePath
                   [wifiManager POSDisConnect];
               });
           }
+          resolve(@(YES));
         }
       ];
 
 
     } @catch(NSException *e){
+        NSError *error = [NSError errorWithDomain:@"RCTZywellThermalPrinterErrorDomain" code:1002 userInfo:@{ NSLocalizedDescriptionKey: @"Failed to print net" }];
+        reject(@"failed_to_print_net", @"Failed to print net", error);
         NSLog(@"ERROR IN PRINTING IMG: %@",[e callStackSymbols]);
     }
 }
