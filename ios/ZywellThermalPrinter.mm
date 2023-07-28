@@ -133,7 +133,7 @@ RCT_EXPORT_METHOD(printPic:(NSString *)ipAddress imagePath:(NSString *)imagePath
                   [wifiManager POSDisConnect];
               });
           }
-          if(suceess && isResolve){
+          if(success && isResolve){
               resolve(@(YES));
           }
         }
