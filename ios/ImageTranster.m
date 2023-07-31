@@ -65,6 +65,7 @@
 }
 +(NSData *)Imagedata:(UIImage *) mIamge andType:(BmpType) bmptype{
     CGImageRef cgimage=[[ImageTranster covertToGrayScale:mIamge] CGImage];
+    CGImageRef cgimage=[[ImageTranster covertToGrayScale:mIamge] CGImage];
     size_t w=CGImageGetWidth(cgimage);
     size_t h=CGImageGetHeight(cgimage);
     UInt32 *pixels;
@@ -80,14 +81,17 @@
     uint8_t *newPixels;
     size_t m=0x01;
     size_t rep=(h+23)/24;
+    size_t rep=(h+23)/24;
     newPixels=(uint8_t *)calloc(n*h, sizeof(uint8_t));
     for (NSInteger y=0; y<h; y++) {
         for (NSInteger x=0; x<n*8; x++) {
             if (x<w) {
                 if ((pixels[y*w+x]&0xff0000)>> 16 != 0) {
+                if ((pixels[y*w+x]&0xff0000)>> 16 != 0) {
                     newPixels[y*n+x/8]|=m<<(7-x%8);
                 }
             }else if (x>=w){
+                newPixels[y*n+x/8]|=0<<(0-x%8);
                 newPixels[y*n+x/8]|=0<<(0-x%8);
             }
         }
@@ -125,7 +129,41 @@
     free(pixels);
     free(newPixels);
     return dataM;
+    NSMutableData *dataM=[[NSMutableData alloc] init];
+    for (NSInteger i=0; i<rep; i++)
+    {
+        if (i==rep-1)
+        {
+            if (h%24==0)
+            {
+                Byte cpyByte[24*n];
+                memcpy(cpyByte, newPixels+(24*n*i), 24*n);
+                [dataM appendBytes:&cpyByte length:sizeof(cpyByte)];
+                
+            }
+            else
+            {
+                Byte cpyByte[(h%24)*n];
+                memcpy(cpyByte, newPixels+(24*n*i), (h%24)*n);
+                [dataM appendBytes:&cpyByte length:sizeof(cpyByte)];
+            }
+        }
+        else
+        {
+            Byte cpyByte[24*n];
+            memcpy(cpyByte, newPixels+(24*n*i), 24*n);
+            [dataM appendBytes:&cpyByte length:sizeof(cpyByte)];
+        }
+    }
+    //释放图片
+    CGContextRelease(context);
+    CGColorSpaceRelease(colorSpace);
+    //释放内存
+    free(pixels);
+    free(newPixels);
+    return dataM;
 }
+
 +(NSData *)rasterImagedata:(UIImage *) mIamge andType:(BmpType) bmptype andPrintRasterType:(PrintRasterType) type{
     //NSMutableData *dataM=[[NSMutableData alloc] init];
   //  mIamge=[self imageCompressForWidthScale:mIamge targetWidth:576];

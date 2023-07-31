@@ -225,52 +225,58 @@ RCT_EXPORT_METHOD(printPic:(NSString *)ipAddress imagePath:(NSString *)imagePath
             // mode không giống "LABEL"
             NSLog(@"mode is NOT equal to LABEL");
           int nWidth = [options[@"width"] intValue];
-          NSInteger width =  ((int)((nWidth + 7)/8))*8;
-    
-          NSURL *imageURL = [NSURL fileURLWithPath:imagePath];
-          CIImage *inputImage = [CIImage imageWithContentsOfURL:imageURL];
-    
-          // Create a black and white filter
-          CIFilter *filter = [CIFilter filterWithName:@"CIColorControls"];
-          [filter setValue:inputImage forKey:kCIInputImageKey];
-          [filter setValue:@(0.0) forKey:kCIInputSaturationKey]; // Set saturation to 0 to remove color
-          BOOL isDisconnect = [options[@"is_disconnect"] boolValue]; // Get the boolean value from options dictionary
-    
-          // Apply the filter and get the output image
-          CIImage *outputImage = [filter outputImage];
-    
-          // Create a CIContext to render the output image
-          CIContext *context = [CIContext context];
-          CGImageRef outputCGImage = [context createCGImage:outputImage fromRect:[outputImage extent]];
-    
-          // Convert the output CGImage to a UIImage
-          UIImage *newImage = [UIImage imageWithCGImage:outputCGImage];
-    
-          NSInteger imgHeight = newImage.size.height;
-          NSInteger imagWidth = newImage.size.width;
-          CGSize size = CGSizeMake(width, imgHeight*width/imagWidth);
-          UIImage *scaled = [ImageTranster imgWithImage:newImage scaledToFillSize:size];
-    
-          unsigned char * graImage = [ImageTranster imgToGreyImage:scaled];
-          unsigned char * formatedData = [ImageTranster img_format_K_threshold:graImage width:size.width height:size.height];
-          NSData *dataToPrint = [ImageTranster convertEachLinePixToCmd:formatedData nWidth:size.width nHeight:size.height nMode:0];
-    
-          [wifiManager POSWriteCommandWithData:dataToPrint];
-          [wifiManager POSWriteCommandWithData:[PosCommand printAndFeedLine]];
-          [wifiManager POSWriteCommandWithData:[PosCommand printAndFeedLine]];
-          [wifiManager POSWriteCommandWithData:[PosCommand printAndFeedLine]];
-          [wifiManager POSWriteCommandWithData:[PosCommand printAndFeedLine]];
-          [wifiManager POSWriteDataWithCallback:[PosCommand selectCutPageModelAndCutpage:0] completion:^(BOOL success) {
-              if (success && isDisconnect) {
-                  dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC));
-                  dispatch_after(popTime, dispatch_get_main_queue(), ^{
-                      [wifiManager POSDisConnect];
-                  });
-              }
-            }
+
+      NSURL *imageURL = [NSURL fileURLWithPath:imagePath];
+      CIImage *inputImage = [CIImage imageWithContentsOfURL:imageURL];
+
+      // Create a black and white filter
+      CIFilter *filter = [CIFilter filterWithName:@"CIColorControls"];
+      [filter setValue:inputImage forKey:kCIInputImageKey];
+      [filter setValue:@(0.0) forKey:kCIInputSaturationKey]; // Set saturation to 0 to remove color
+      BOOL isDisconnect = [options[@"is_disconnect"] boolValue]; // Get the boolean value from options dictionary
+      BOOL isResolve = [options[@"is_resolve"] boolValue]; // Get the boolean value from options dictionary
+
+      // Apply the filter and get the output image
+      CIImage *outputImage = [filter outputImage];
+
+      // Create a CIContext to render the output image
+      CIContext *context = [CIContext context];
+      CGImageRef outputCGImage = [context createCGImage:outputImage fromRect:[outputImage extent]];
+
+      // Convert the output CGImage to a UIImage
+      UIImage *newImage = [UIImage imageWithCGImage:outputCGImage];
+
+      NSInteger imgHeight = newImage.size.height;
+      NSInteger imagWidth = newImage.size.width;
+      NSInteger width =  ((int)((nWidth + 7)/8))*8;
+      CGSize size = CGSizeMake(width, imgHeight*width/imagWidth);
+      UIImage *scaled = [ImageTranster imgWithImage:newImage scaledToFillSize:size];
+
+      unsigned char * graImage = [ImageTranster imgToGreyImage:scaled];
+      unsigned char * formatedData = [ImageTranster img_format_K_threshold:graImage width:size.width height:size.height];
+      NSData *dataToPrint = [ImageTranster convertEachLinePixToCmd:formatedData nWidth:size.width nHeight:size.height nMode:0];
+
+      [wifiManager POSWriteCommandWithData:dataToPrint];
+      [wifiManager POSWriteCommandWithData:[PosCommand printAndFeedLine]];
+      [wifiManager POSWriteCommandWithData:[PosCommand printAndFeedLine]];
+      [wifiManager POSWriteCommandWithData:[PosCommand printAndFeedLine]];
+      [wifiManager POSWriteCommandWithData:[PosCommand printAndFeedLine]];
+      [wifiManager POSWriteDataWithCallback:[PosCommand selectCutPageModelAndCutpage:0] completion:^(BOOL success) {
+          if (success && isDisconnect) {
+              dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC));
+              dispatch_after(popTime, dispatch_get_main_queue(), ^{
+                  [wifiManager POSDisConnect];
+              });
+          }
+          if(success && isResolve){
+              resolve(@(YES));
+          }
+        }
           ];
         }
     } @catch(NSException *e){
+        NSError *error = [NSError errorWithDomain:@"RCTZywellThermalPrinterErrorDomain" code:1002 userInfo:@{ NSLocalizedDescriptionKey: @"Failed to print net" }];
+        reject(@"failed_to_print_net", @"Failed to print net", error);
         NSLog(@"ERROR IN PRINTING IMG: %@",[e callStackSymbols]);
     }
 }
