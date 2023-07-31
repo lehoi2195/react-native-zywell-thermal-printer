@@ -330,7 +330,8 @@
              andContent:(NSString *)content
           usStrEnCoding:(NSStringEncoding)strEnCoding{
     
-    NSString *pstr=[NSString stringWithFormat:@"BARCODE %d,%d,%@,%d,%d,%d,%d,%d,\"%@\"\n",x,y,codetype,height,readable,rotation,narrow,wide,content];
+    //这里的codetype的类型是字符串，所以要加引号才对
+    NSString *pstr=[NSString stringWithFormat:@"BARCODE %d,%d,\"%@\",%d,%d,%d,%d,%d,\"%@\"\n",x,y,codetype,height,readable,rotation,narrow,wide,content];
     NSData *data=[pstr dataUsingEncoding:strEnCoding];
     return data;
 }
@@ -340,10 +341,11 @@
     size_t height=CGImageGetHeight(image.CGImage);
     int w=(int)width;
     int h=(int)height;
-    NSString *pstr=[NSString stringWithFormat:@"BITMAP %d,%d,%d,%d,%d",x,y,w,h,mode];
+    NSString *pstr=[NSString stringWithFormat:@"BITMAP %d,%d,%d,%d,%d,",x,y,w,h,mode];
     NSData *data=[pstr dataUsingEncoding:NSASCIIStringEncoding];
     NSMutableData *dataM=[NSMutableData dataWithData:data];
     NSData *imageData=[ImageTranster Imagedata:image andType:bmptype];
+//    imageData=[ImageTranster rasterImagedata:image andType:bmptype andPrintRasterType:RasterNolmorWH];
     [dataM appendData:imageData];
     Byte b[1];
     b[0]=0x0A;

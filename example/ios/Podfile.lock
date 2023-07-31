@@ -331,7 +331,7 @@ PODS:
     - glog
   - react-native-view-shot (3.7.0):
     - React-Core
-  - react-native-zywell-thermal-printer (0.1.0):
+  - react-native-zywell-thermal-printer (0.1.8):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - React-perflogger (0.71.3)
@@ -618,7 +618,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 9f7c9137605e72ca0343db4cea88006cb94856dd
   React-logger: 957e5dc96d9dbffc6e0f15e0ee4d2b42829ff207
   react-native-view-shot: f5507655f122e6b104888a11130f267a427f0d57
-  react-native-zywell-thermal-printer: dc51030e8342e6be7731dca83aeb3775b4bae50d
+  react-native-zywell-thermal-printer: e76d891d70588c7862cdf8b05492fc652d3e7a55
   React-perflogger: af8a3d31546077f42d729b949925cc4549f14def
   React-RCTActionSheet: 57cc5adfefbaaf0aae2cf7e10bccd746f2903673
   React-RCTAnimation: 11c61e94da700c4dc915cf134513764d87fc5e2b

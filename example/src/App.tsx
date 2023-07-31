@@ -15,30 +15,42 @@ import { PERMISSIONS, requestMultiple } from 'react-native-permissions';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import ZywellPrinter, {
   PRINTER_TYPE,
+  PRINT_MODE,
   clearBuffer,
   printPic,
 } from 'react-native-zywell-thermal-printer';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 const printers: any[] = [
-  {
-    address: 'FDD3B2FA-8D0E-23B2-8FE7-A035684B2315', // MP583
-    type: PRINTER_TYPE.BLUETOOTH,
-    copy: 1,
-    size: 58,
-  },
-  {
-    address: '97B9F848-F452-31A1-AFF1-1ACFD356AF70', // SBH-K57
-    type: PRINTER_TYPE.BLUETOOTH,
-    copy: 1,
-    size: 58,
-  },
-  { address: '192.168.1.210', type: PRINTER_TYPE.NET, copy: 1, size: 80 },
-  { address: '192.168.0.43', type: PRINTER_TYPE.NET, copy: 1, size: 58 },
+  // {
+  //   address: 'FDD3B2FA-8D0E-23B2-8FE7-A035684B2315', // MP583
+  //   type: PRINTER_TYPE.BLUETOOTH,
+  //   copy: 1,
+  //   size: 58,
+  //   mode: PRINT_MODE.THERMAL
+  // },
+  // {
+  //   address: '97B9F848-F452-31A1-AFF1-1ACFD356AF70', // SBH-K57
+  //   type: PRINTER_TYPE.BLUETOOTH,
+  //   copy: 1,
+  //   size: 58,
+  //   mode: PRINT_MODE.THERMAL
+  // },
+  // { address: '192.168.1.210', type: PRINTER_TYPE.NET, copy: 1, size: 80,
+  //   mode: PRINT_MODE.THERMAL },
+  { address: '192.168.0.43', type: PRINTER_TYPE.NET, copy: 1, size: 58,
+    mode: PRINT_MODE.THERMAL },
+   
 ];
+
+const printersLabel = [
+ { address: '192.168.2.203', type: PRINTER_TYPE.NET, copy: 1, size: 58,
+    mode: PRINT_MODE.LABEL },
+]
 
 const App = () => {
   const refView = useRef<any>();
+  const refStampView = useRef<any>();
 
   useEffect(() => {
     const requestBluetoothPermission = async () => {
@@ -80,25 +92,28 @@ const App = () => {
       printPic(
         printer?.address,
         imagePath,
-        { size: 58, width: nWidth },
+        { size: 58, width: nWidth, mode: printer?.mode, is_disconnect: true },
         printer?.type
       )
     );
     Promise.all(printJobs);
   };
 
-  const printFunction = async () => {
-    const imagePath = await captureRef(refView, { format: 'png', quality: 1 });
+  const printFunction = async (listPrinter: any, ref: any) => {
+    const imagePath = await captureRef(ref, { format: 'png', quality: 1 });
 
     try {
       if (Platform.OS === 'android') {
-        const connectJob = printers.map((printer) => {
+        const connectJob = listPrinter.map((printer: any) => {
           clearBuffer(printer?.address, printer?.type);
           if (printer?.type === PRINTER_TYPE.BLUETOOTH) {
-            return ZywellPrinter.connectBLE(printer?.address).then(() =>
-              setTimeout(() => {
-                printMultipleTimes(printer, imagePath);
-              }, 500)
+            return ZywellPrinter.connectBLE(printer?.address).then((res: any) =>
+              {
+                console.log('DCM: ', res);
+                setTimeout(() => {
+                  printMultipleTimes(printer, imagePath);
+                }, 500)
+              }
             );
           }
 
@@ -108,16 +123,17 @@ const App = () => {
             );
           }
         });
-        Promise.all(connectJob);
+        
       } else {
-        const blePrinters = printers.filter(
-          (printer) => printer.type === PRINTER_TYPE.BLUETOOTH
+        const blePrinters = listPrinter.filter(
+          (printer: any) => printer.type === PRINTER_TYPE.BLUETOOTH
         );
-        const lanPrinters = printers.filter(
-          (printer) => printer.type === PRINTER_TYPE.NET
+       
+        const lanPrinters = listPrinter.filter(
+          (printer: any) => printer.type === PRINTER_TYPE.NET
         );
 
-        const lanPrintJob = lanPrinters.map((printer) => {
+        const lanPrintJob = lanPrinters.map((printer: any) => {
           clearBuffer(printer?.address, printer?.type);
           return ZywellPrinter.connectNet(printer?.address).then(() =>
             printMultipleTimes(printer, imagePath)
@@ -134,7 +150,7 @@ const App = () => {
           try {
             await ZywellPrinter.connectBLE(address);
             await clearBuffer(address, printer?.type);
-            await new Promise((resolve) => setTimeout(resolve, 750));
+            await new Promise((resolve) => setTimeout(() => {}, 750));
             for (let time = 0; time < printTimes.length; time++) {
               await ZywellPrinter.printPicBLE(address, imagePath, {
                 size: 58,
@@ -149,6 +165,9 @@ const App = () => {
     }
   };
 
+  const printLabel = () => printFunction(printersLabel, refStampView)
+  const printBill = () => printFunction(printers, refView)
+
   return (
     <SafeAreaView style={Colors.lighter}>
       <StatusBar barStyle={'dark-content'} backgroundColor={Colors.lighter} />
@@ -162,12 +181,27 @@ const App = () => {
               {item?.address}
             </Text>
           ))}
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Button
+            color={'#33991F'}
+            onPress={printBill}
+            title={'print bill'}
+          />
           <Button
             color={'#33991F'}
-            onPress={printFunction}
-            title={'print multiple'}
+            onPress={printLabel}
+            title={'print stamp'}
           />
+          </View>
         </View>
+
+        <ViewShot style={styles.v0} ref={refStampView}>
+          <Image
+            resizeMode={Platform.OS === 'ios' ? 'contain' : 'center'}
+            style={styles.wrapStamp}
+            source={require('./images/stamp.png')}
+          />
+        </ViewShot>
 
         <ViewShot style={styles.v0} ref={refView}>
           <Image
@@ -176,6 +210,7 @@ const App = () => {
             source={require('./images/80m.png')}
           />
         </ViewShot>
+        
       </ScrollView>
     </SafeAreaView>
   );
@@ -200,6 +235,11 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width - 32,
     height: 1000,
   },
+  wrapStamp: {
+    width: Dimensions.get('window').width,
+    height: (Dimensions.get('window').width) * 3 / 5,
+    backgroundColor: '#ffffff',
+  },
   size18: {
     fontSize: 18,
   },
@@ -207,7 +247,6 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   v0: {
-    padding: 16,
     backgroundColor: '#ffffff',
   },
   v1: {

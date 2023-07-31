@@ -6,6 +6,11 @@ export const PRINTER_TYPE = {
   BLUETOOTH: 'BLUETOOTH',
 };
 
+export const PRINT_MODE = {
+  THERMAL: 'THERMAL',
+  LABEL: 'LABEL'
+}
+
 export function clearBuffer(address: string, type: string) {
   if (Platform.OS === 'ios') {
     if (type === PRINTER_TYPE.NET) {
@@ -39,7 +44,7 @@ export function disconnectAddress(address: string, type: string) {
 export function printPic(
   address: string,
   imagePath: string,
-  opts: { size: number; width: number },
+  opts: { size: number; width: number, mode: string, is_disconnect: boolean },
   type: string
 ) {
   if (type === PRINTER_TYPE.BLUETOOTH && Platform.OS === 'ios') {
