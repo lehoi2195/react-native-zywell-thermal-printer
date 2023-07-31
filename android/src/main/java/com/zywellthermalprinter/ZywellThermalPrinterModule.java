@@ -237,7 +237,7 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
                 }
               };
               Timer timer = new Timer();
-              timer.schedule(task, 1000);
+              timer.schedule(task, 3000);
             }
           }
 
@@ -288,7 +288,7 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
                 }
               };
               Timer timer = new Timer();
-              timer.schedule(task, 1000);
+              timer.schedule(task, 3000);
             }
           }
 
