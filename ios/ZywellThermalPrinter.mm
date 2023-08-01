@@ -230,7 +230,7 @@ RCT_EXPORT_METHOD(printPic
       [dataM appendData:data];
       data = [TscCommand cls];
       [dataM appendData:data];
-      data = [TscCommand bitmapWithX:10
+      data = [TscCommand bitmapWithX:-2
                                 andY:10
                              andMode:0
                             andImage:newImage
