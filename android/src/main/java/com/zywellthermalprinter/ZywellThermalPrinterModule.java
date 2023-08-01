@@ -1,28 +1,5 @@
 package com.zywellthermalprinter;
 
-import androidx.annotation.NonNull;
-
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.module.annotations.ReactModule;
-
-import net.posprinter.posprinterface.PrinterBinder;
-import net.posprinter.posprinterface.ProcessData;
-import net.posprinter.posprinterface.TaskCallback;
-import net.posprinter.service.PrinterConnectionsService;
-import net.posprinter.utils.BitmapProcess;
-import net.posprinter.utils.BitmapToByteData;
-import net.posprinter.utils.DataForSendToPrinterPos58;
-import net.posprinter.utils.DataForSendToPrinterPos80;
-import net.posprinter.utils.DataForSendToPrinterTSC;
-import net.posprinter.utils.StringUtils;
-import net.posprinter.utils.RoundQueue;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -33,11 +10,30 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
-
+import androidx.annotation.NonNull;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.module.annotations.ReactModule;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import net.posprinter.posprinterface.PrinterBinder;
+import net.posprinter.posprinterface.ProcessData;
+import net.posprinter.posprinterface.TaskCallback;
+import net.posprinter.service.PrinterConnectionsService;
+import net.posprinter.utils.BitmapProcess;
+import net.posprinter.utils.BitmapToByteData;
+import net.posprinter.utils.DataForSendToPrinterPos58;
+import net.posprinter.utils.DataForSendToPrinterPos80;
+import net.posprinter.utils.DataForSendToPrinterTSC;
+import net.posprinter.utils.RoundQueue;
+import net.posprinter.utils.StringUtils;
 
 @ReactModule(name = ZywellThermalPrinterModule.NAME)
 public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
@@ -49,7 +45,7 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
   ServiceConnection printerSerconnection = new ServiceConnection() {
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-      printerBinder = (PrinterBinder) service;
+      printerBinder = (PrinterBinder)service;
       Log.e("printerBinder", "connect");
     }
 
@@ -64,8 +60,10 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
     super(reactContext);
     this.reactContext = reactContext;
 
-    Intent intentPrinter = new Intent(reactContext, PrinterConnectionsService.class);
-    reactContext.bindService(intentPrinter, printerSerconnection, Context.BIND_AUTO_CREATE);
+    Intent intentPrinter =
+        new Intent(reactContext, PrinterConnectionsService.class);
+    reactContext.bindService(intentPrinter, printerSerconnection,
+                             Context.BIND_AUTO_CREATE);
   }
 
   @Override
@@ -82,7 +80,7 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
 
     img.getPixels(pixels, 0, width, 0, 0, width, height);
 
-    //The arithmetic average of a grayscale image; a threshold
+    // The arithmetic average of a grayscale image; a threshold
     double redSum = 0, greenSum = 0, blueSun = 0;
     double total = width * height;
 
@@ -97,12 +95,11 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
         redSum += red;
         greenSum += green;
         blueSun += blue;
-
       }
     }
-    int m = (int) (redSum / total);
+    int m = (int)(redSum / total);
 
-    //Conversion monochrome diagram
+    // Conversion monochrome diagram
     for (int i = 0; i < height; i++) {
       for (int j = 0; j < width; j++) {
         int grey = pixels[width * i + j];
@@ -130,7 +127,8 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
   public void connectNet(String ip_address, final Promise promise) {
     if (ip_address != "") {
       boolean isConnected = printerBinder.isConnect(ip_address);
-      Log.d("isConnected", "readBuffer ip: " + ip_address + " isConnected: " + isConnected + "");
+      Log.d("isConnected", "readBuffer ip: " + ip_address +
+                               " isConnected: " + isConnected + "");
       if (isConnected) {
         printerBinder.disconnectCurrentPort(ip_address, new TaskCallback() {
           @Override
@@ -151,7 +149,8 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
 
           @Override
           public void OnFailed() {
-            promise.reject("DisconnectFailed", "Failed to disconnect the printer");
+            promise.reject("DisconnectFailed",
+                           "Failed to disconnect the printer");
           }
         });
       } else {
@@ -194,165 +193,192 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
     } else {
       promise.reject(new Exception("CONNECT_BLE_FAIL_IP_NULL"));
     }
-
   }
 
   @ReactMethod
-  public void printPic(String address, String imagePath, final ReadableMap options, final Promise promise) {
+  public void printPic(String address, String imagePath,
+                       final ReadableMap options, final Promise promise) {
     Uri imageUri = Uri.parse(imagePath);
     String realPath = imageUri.getPath();
 
     int size = options.getInt("size");
     int width = options.getInt("width");
-    String mode = options.getString("mode");
+
     final boolean isDisconnect;
     if (options.hasKey("is_disconnect")) {
       isDisconnect = options.getBoolean("is_disconnect");
     } else {
       isDisconnect = false;
     }
+
+    String mode;
+    if (options.hasKey("mode")) {
+      mode = options.getString("mode");
+    } else {
+      mode = "THERMAL";
+    }
+    
     final Bitmap bitmap = BitmapFactory.decodeFile(realPath);
     if (mode.equals("LABEL")) {
       if (bitmap != null && address != null) {
-        final Bitmap bitmap1 = BitmapProcess.compressBmpByYourWidth(bitmap, width);
+        final Bitmap bitmap1 =
+            BitmapProcess.compressBmpByYourWidth(bitmap, width);
         final Bitmap bitmapToPrint = convertGreyImg(bitmap1);
-        printerBinder.writeDataByYouself(address, new TaskCallback() {
-          @Override
-          public void OnSucceed() {
-            promise.resolve("SEND_SUCCESS");
-            if (isDisconnect) {
-              TimerTask task = new TimerTask() {
-                @Override
-                public void run() {
-                  printerBinder.disconnectCurrentPort(address, new TaskCallback() {
+        printerBinder.writeDataByYouself(
+            address,
+            new TaskCallback() {
+              @Override
+              public void OnSucceed() {
+                promise.resolve("SEND_SUCCESS");
+                if (isDisconnect) {
+                  TimerTask task = new TimerTask() {
                     @Override
-                    public void OnSucceed() {
-                      Log.d("disconnectCurrentPort", "disconnect success");
-                    }
+                    public void run() {
+                      printerBinder.disconnectCurrentPort(
+                          address, new TaskCallback() {
+                            @Override
+                            public void OnSucceed() {
+                              Log.d("disconnectCurrentPort",
+                                    "disconnect success");
+                            }
 
-                    @Override
-                    public void OnFailed() {
+                            @Override
+                            public void OnFailed() {}
+                          });
                     }
-                  });
+                  };
+                  Timer timer = new Timer();
+                  timer.schedule(task, 3000);
                 }
-              };
-              Timer timer = new Timer();
-              timer.schedule(task, 3000);
-            }
-          }
+              }
 
-          @Override
-          public void OnFailed() {
-            promise.reject(new Exception("SEND_ERROR"));
-          }
-        }, new ProcessData() {
-          @Override
-          public List<byte[]> processDataBeforeSend() {
-            List<byte[]> list = new ArrayList<>();
-            //设置标签纸大小
-            list.add(DataForSendToPrinterTSC.sizeBymm(80, 60));
-            //设置间隙
-            list.add(DataForSendToPrinterTSC.gapBymm(2, 0));
-            //清除缓存
-            list.add(DataForSendToPrinterTSC.cls());
-            list.add(DataForSendToPrinterTSC.bitmap(10, 10, 0, bitmapToPrint, BitmapToByteData.BmpType.Threshold));
-            list.add(DataForSendToPrinterTSC.print(1));
-            return list;
-          }
-        });
+              @Override
+              public void OnFailed() {
+                promise.reject(new Exception("SEND_ERROR"));
+              }
+            },
+            new ProcessData() {
+              @Override
+              public List<byte[]> processDataBeforeSend() {
+                List<byte[]> list = new ArrayList<>();
+                // 设置标签纸大小
+                list.add(DataForSendToPrinterTSC.sizeBymm(80, 60));
+                // 设置间隙
+                list.add(DataForSendToPrinterTSC.gapBymm(2, 0));
+                // 清除缓存
+                list.add(DataForSendToPrinterTSC.cls());
+                list.add(DataForSendToPrinterTSC.bitmap(
+                    10, 10, 0, bitmapToPrint,
+                    BitmapToByteData.BmpType.Threshold));
+                list.add(DataForSendToPrinterTSC.print(1));
+                return list;
+              }
+            });
       } else {
         promise.reject(new Exception("NOT_CONNECT_TO_PRINTER"));
       }
     } else {
       if (bitmap != null && address != null) {
-        final Bitmap bitmap1 = BitmapProcess.compressBmpByYourWidth(bitmap, width);
+        final Bitmap bitmap1 =
+            BitmapProcess.compressBmpByYourWidth(bitmap, width);
         final Bitmap bitmapToPrint = convertGreyImg(bitmap1);
-        printerBinder.writeDataByYouself(address, new TaskCallback() {
-          @Override
-          public void OnSucceed() {
-            promise.resolve("SEND_SUCCESS");
-            if (isDisconnect) {
-              TimerTask task = new TimerTask() {
-                @Override
-                public void run() {
-                  printerBinder.disconnectCurrentPort(address, new TaskCallback() {
+        printerBinder.writeDataByYouself(
+            address,
+            new TaskCallback() {
+              @Override
+              public void OnSucceed() {
+                promise.resolve("SEND_SUCCESS");
+                if (isDisconnect) {
+                  TimerTask task = new TimerTask() {
                     @Override
-                    public void OnSucceed() {
-                      Log.d("disconnectCurrentPort", "disconnect success");
-                    }
+                    public void run() {
+                      printerBinder.disconnectCurrentPort(
+                          address, new TaskCallback() {
+                            @Override
+                            public void OnSucceed() {
+                              Log.d("disconnectCurrentPort",
+                                    "disconnect success");
+                            }
 
-                    @Override
-                    public void OnFailed() {
+                            @Override
+                            public void OnFailed() {}
+                          });
                     }
-                  });
+                  };
+                  Timer timer = new Timer();
+                  timer.schedule(task, 3000);
                 }
-              };
-              Timer timer = new Timer();
-              timer.schedule(task, 3000);
-            }
-          }
-
-          @Override
-          public void OnFailed() {
-            promise.reject(new Exception("SEND_ERROR"));
-          }
-        }, new ProcessData() {
-          @Override
-          public List<byte[]> processDataBeforeSend() {
-            List<byte[]> list = new ArrayList<>();
-            list.add(DataForSendToPrinterPos80.initializePrinter());
-            List<Bitmap> blist = new ArrayList<>();
-            blist = BitmapProcess.cutBitmap(50, bitmapToPrint);
-            for (int i = 0; i < blist.size(); i++) {
-              if (size == 58) {
-                list.add(DataForSendToPrinterPos58.printRasterBmp(0, blist.get(i), BitmapToByteData.BmpType.Dithering, BitmapToByteData.AlignType.Left, width));
-              } else {
-                list.add(DataForSendToPrinterPos80.printRasterBmp(0, blist.get(i), BitmapToByteData.BmpType.Dithering, BitmapToByteData.AlignType.Left, width));
               }
-            }
 
-            if (size == 58) {
-              list.add(DataForSendToPrinterPos58.printAndFeedLine());
-            } else {
-              list.add(DataForSendToPrinterPos80.printAndFeedLine());
-            }
-            if (size == 80) {
-              list.add(DataForSendToPrinterPos80.selectCutPagerModerAndCutPager(0x42, 0x66));
-            }
-            return list;
-          }
-        });
+              @Override
+              public void OnFailed() {
+                promise.reject(new Exception("SEND_ERROR"));
+              }
+            },
+            new ProcessData() {
+              @Override
+              public List<byte[]> processDataBeforeSend() {
+                List<byte[]> list = new ArrayList<>();
+                list.add(DataForSendToPrinterPos80.initializePrinter());
+                List<Bitmap> blist = new ArrayList<>();
+                blist = BitmapProcess.cutBitmap(50, bitmapToPrint);
+                for (int i = 0; i < blist.size(); i++) {
+                  if (size == 58) {
+                    list.add(DataForSendToPrinterPos58.printRasterBmp(
+                        0, blist.get(i), BitmapToByteData.BmpType.Dithering,
+                        BitmapToByteData.AlignType.Left, width));
+                  } else {
+                    list.add(DataForSendToPrinterPos80.printRasterBmp(
+                        0, blist.get(i), BitmapToByteData.BmpType.Dithering,
+                        BitmapToByteData.AlignType.Left, width));
+                  }
+                }
+
+                if (size == 58) {
+                  list.add(DataForSendToPrinterPos58.printAndFeedLine());
+                } else {
+                  list.add(DataForSendToPrinterPos80.printAndFeedLine());
+                }
+                if (size == 80) {
+                  list.add(
+                      DataForSendToPrinterPos80.selectCutPagerModerAndCutPager(
+                          0x42, 0x66));
+                }
+                return list;
+              }
+            });
       } else {
         promise.reject(new Exception("NOT_CONNECT_TO_PRINTER"));
       }
-
     }
-
   }
 
   @ReactMethod
   public void printText(String address, String text, final Promise promise) {
     if (!TextUtils.isEmpty(text)) {
-      printerBinder.writeDataByYouself(address, new TaskCallback() {
-        @Override
-        public void OnSucceed() {
-          promise.resolve("PRINT_SUCCESS");
-        }
+      printerBinder.writeDataByYouself(
+          address,
+          new TaskCallback() {
+            @Override
+            public void OnSucceed() {
+              promise.resolve("PRINT_SUCCESS");
+            }
 
-        @Override
-        public void OnFailed() {
-          promise.reject(new Exception("PRINT_FAIL"));
-        }
-      }, new ProcessData() {
-        @Override
-        public List<byte[]> processDataBeforeSend() {
-          List<byte[]> list = new ArrayList<>();
-          list.add(DataForSendToPrinterPos58.initializePrinter());
-          list.add(StringUtils.strTobytes(text));
-          list.add(DataForSendToPrinterPos58.printAndFeedLine());
-          return list;
-        }
-      });
+            @Override
+            public void OnFailed() {
+              promise.reject(new Exception("PRINT_FAIL"));
+            }
+          },
+          new ProcessData() {
+            @Override
+            public List<byte[]> processDataBeforeSend() {
+              List<byte[]> list = new ArrayList<>();
+              list.add(DataForSendToPrinterPos58.initializePrinter());
+              list.add(StringUtils.strTobytes(text));
+              list.add(DataForSendToPrinterPos58.printAndFeedLine());
+              return list;
+            }
+          });
     } else {
       promise.reject(new Exception("PRINT_FAIL_NOT_CONNECT"));
     }
@@ -407,7 +433,8 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
 
         @Override
         public void OnFailed() {
-          promise.reject("DisconnectFailed", "Failed to disconnect the printer");
+          promise.reject("DisconnectFailed",
+                         "Failed to disconnect the printer");
         }
       });
     } else {
@@ -418,7 +445,6 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void disconnectAll(final Promise promise) {
     printerBinder.disconnectAll(new TaskCallback() {
-
       @Override
       public void OnSucceed() {
         promise.resolve("DISCONNECT_ALL_SUCCESS");
