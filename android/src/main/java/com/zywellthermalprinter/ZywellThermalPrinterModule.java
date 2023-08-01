@@ -217,7 +217,7 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
     } else {
       mode = "THERMAL";
     }
-    
+
     final Bitmap bitmap = BitmapFactory.decodeFile(realPath);
     if (mode.equals("LABEL")) {
       if (bitmap != null && address != null) {
@@ -319,7 +319,11 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
               @Override
               public List<byte[]> processDataBeforeSend() {
                 List<byte[]> list = new ArrayList<>();
-                list.add(DataForSendToPrinterPos80.initializePrinter());
+                if (size == 58) {
+                  list.add(DataForSendToPrinterPos58.initializePrinter());
+                } else {
+                  list.add(DataForSendToPrinterPos80.initializePrinter());
+                }
                 List<Bitmap> blist = new ArrayList<>();
                 blist = BitmapProcess.cutBitmap(50, bitmapToPrint);
                 for (int i = 0; i < blist.size(); i++) {
