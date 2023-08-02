@@ -249,13 +249,15 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
           @Override
           public List<byte[]> processDataBeforeSend() {
             List<byte[]> list = new ArrayList<>();
-            //设置标签纸大小
-            list.add(DataForSendToPrinterTSC.sizeBymm(80, 60));
-            //设置间隙
-            list.add(DataForSendToPrinterTSC.gapBymm(2, 0));
-            //清除缓存
+            // 设置标签纸大小
+            list.add(DataForSendToPrinterTSC.sizeBymm(50, 30));
+            // 设置间隙
+            list.add(DataForSendToPrinterTSC.gapBymm(3, 0));
+            // 清除缓存
             list.add(DataForSendToPrinterTSC.cls());
-            list.add(DataForSendToPrinterTSC.bitmap(10, 10, 0, bitmapToPrint, BitmapToByteData.BmpType.Threshold));
+            list.add(DataForSendToPrinterTSC.bitmap(
+                -2, 10, 0, bitmapToPrint,
+                BitmapToByteData.BmpType.Threshold));
             list.add(DataForSendToPrinterTSC.print(1));
             return list;
           }
