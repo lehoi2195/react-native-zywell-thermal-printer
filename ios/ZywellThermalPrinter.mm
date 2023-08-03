@@ -215,6 +215,15 @@ RCT_EXPORT_METHOD(printPic
       // mode là chuỗi "LABEL"
       NSLog(@"mode is equal to LABEL");
       int nWidth = [options[@"width"] intValue];
+      NSNumber *paperSizeNumber = options[@"paper_size"];
+      int paper_size = [options[@"paper_size"] intValue];
+      if (paperSizeNumber == nil || ![paperSizeNumber isKindOfClass:[NSNumber class]]) {
+        // If the "paper_size" key is missing or the value is not a valid number, set default to 50
+        paper_size = 50;
+      } else {
+        // Convert the paperSizeNumber to an integer using the intValue method
+        paper_size = [paperSizeNumber intValue];
+      }
       NSInteger width = ((int)((nWidth + 7) / 8)) * 8;
       UIImage *newImage =
           [self imageCompressForWidthScaleWithImagePath:imagePath
@@ -224,7 +233,7 @@ RCT_EXPORT_METHOD(printPic
       NSData *data = [[NSData alloc] init];
       //    data=[self.codeTextField.text
       //    dataUsingEncoding:NSASCIIStringEncoding];
-      data = [TscCommand sizeBymmWithWidth:50 andHeight:30];
+      data = [TscCommand sizeBymmWithWidth:paper_size andHeight:30];
       [dataM appendData:data];
       data = [TscCommand gapBymmWithWidth:3 andHeight:0];
       [dataM appendData:data];

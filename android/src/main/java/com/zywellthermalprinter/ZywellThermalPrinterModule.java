@@ -220,6 +220,12 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
 
     final Bitmap bitmap = BitmapFactory.decodeFile(realPath);
     if (mode.equals("LABEL")) {
+      int paper_size;
+      if (options.hasKey("paper_size")) {
+        paper_size = options.getInt("paper_size");
+      } else {
+        paper_size = 50;
+      }
       if (bitmap != null && address != null) {
         final Bitmap bitmap1 =
             BitmapProcess.compressBmpByYourWidth(bitmap, width);
@@ -261,7 +267,7 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
           public List<byte[]> processDataBeforeSend() {
             List<byte[]> list = new ArrayList<>();
             // 设置标签纸大小
-            list.add(DataForSendToPrinterTSC.sizeBymm(50, 30));
+            list.add(DataForSendToPrinterTSC.sizeBymm(paper_size, 30));
             // 设置间隙
             list.add(DataForSendToPrinterTSC.gapBymm(3, 0));
             // 清除缓存
