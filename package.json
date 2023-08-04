@@ -1,6 +1,6 @@
 {
   "name": "react-native-zywell-thermal-printer",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "Native bridge for Zywell Thermal printer",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
