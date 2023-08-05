@@ -247,7 +247,21 @@ RCT_EXPORT_METHOD(printPic
       [dataM appendData:data];
       data = [TscCommand print:1];
       [dataM appendData:data];
-      [wifiManager POSWriteCommandWithData:dataM];
+      [wifiManager POSWriteDataWithCallback:dataM
+          completion:^(BOOL success) {
+          if (success && isDisconnect) {
+            dispatch_time_t popTime =
+                dispatch_time(DISPATCH_TIME_NOW,
+                              (int64_t)(3.0 * NSEC_PER_SEC));
+            dispatch_after(popTime, dispatch_get_main_queue(),
+                            ^{
+                              [wifiManager POSDisConnect];
+                            });
+          }
+          if (success && isResolve) {
+            resolve(@(YES));
+          }
+        }];
     } else {
       // mode không giống "LABEL"
       NSLog(@"mode is NOT equal to LABEL");
