@@ -211,6 +211,13 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
       isDisconnect = false;
     }
 
+    final boolean isCutPaper;
+    if (options.hasKey("cut_paper")) {
+      isCutPaper = options.getBoolean("cut_paper");
+    } else {
+      isCutPaper = true;
+    }
+
     String mode;
     if (options.hasKey("mode")) {
       mode = options.getString("mode");
@@ -258,27 +265,28 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
                 }
               }
 
-          @Override
-          public void OnFailed() {
-            promise.reject(new Exception("SEND_ERROR"));
-          }
-        }, new ProcessData() {
-          @Override
-          public List<byte[]> processDataBeforeSend() {
-            List<byte[]> list = new ArrayList<>();
-            // 设置标签纸大小
-            list.add(DataForSendToPrinterTSC.sizeBymm(paper_size, 30));
-            // 设置间隙
-            list.add(DataForSendToPrinterTSC.gapBymm(3, 0));
-            // 清除缓存
-            list.add(DataForSendToPrinterTSC.cls());
-            list.add(DataForSendToPrinterTSC.bitmap(
-                -2, 10, 0, bitmapToPrint,
-                BitmapToByteData.BmpType.Threshold));
-            list.add(DataForSendToPrinterTSC.print(1));
-            return list;
-          }
-        });
+              @Override
+              public void OnFailed() {
+                promise.reject(new Exception("SEND_ERROR"));
+              }
+            },
+            new ProcessData() {
+              @Override
+              public List<byte[]> processDataBeforeSend() {
+                List<byte[]> list = new ArrayList<>();
+                // 设置标签纸大小
+                list.add(DataForSendToPrinterTSC.sizeBymm(paper_size, 30));
+                // 设置间隙
+                list.add(DataForSendToPrinterTSC.gapBymm(3, 0));
+                // 清除缓存
+                list.add(DataForSendToPrinterTSC.cls());
+                list.add(DataForSendToPrinterTSC.bitmap(
+                    -2, 10, 0, bitmapToPrint,
+                    BitmapToByteData.BmpType.Threshold));
+                list.add(DataForSendToPrinterTSC.print(1));
+                return list;
+              }
+            });
       } else {
         promise.reject(new Exception("NOT_CONNECT_TO_PRINTER"));
       }
@@ -343,12 +351,13 @@ public class ZywellThermalPrinterModule extends ReactContextBaseJavaModule {
                   }
                 }
 
-                if (size == 58) {
+                if (size == 58 && isCutPaper) {
                   list.add(DataForSendToPrinterPos58.printAndFeedLine());
-                } else {
+                } else if (isCutPaper) {
                   list.add(DataForSendToPrinterPos80.printAndFeedLine());
                 }
-                if (size == 80) {
+
+                if (size == 80 && isCutPaper) {
                   list.add(
                       DataForSendToPrinterPos80.selectCutPagerModerAndCutPager(
                           0x42, 0x66));
