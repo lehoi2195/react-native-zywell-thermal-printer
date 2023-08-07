@@ -214,6 +214,10 @@ RCT_EXPORT_METHOD(printPic
     if ([mode isEqualToString:labelString]) {
       // mode là chuỗi "LABEL"
       NSLog(@"mode is equal to LABEL");
+      BOOL isDisconnect = [options[@"is_disconnect"]
+          boolValue]; // Get the boolean value from options dictionary
+      BOOL isResolve = [options[@"is_resolve"]
+          boolValue]; // Get the boolean value from options dictionary
       int nWidth = [options[@"width"] intValue];
       NSNumber *paperSizeNumber = options[@"paper_size"];
       int paper_size = [options[@"paper_size"] intValue];
