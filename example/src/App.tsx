@@ -38,8 +38,7 @@ const printers: any[] = [
   // },
   // { address: '192.168.1.210', type: PRINTER_TYPE.NET, copy: 1, size: 80,
   //   mode: PRINT_MODE.THERMAL },
-  { address: '192.168.0.43', type: PRINTER_TYPE.NET, copy: 1, size: 58,
-    mode: PRINT_MODE.THERMAL },
+  { address: '192.168.0.43', type: PRINTER_TYPE.NET, copy: 1, size: 58, mode: PRINT_MODE.THERMAL },
    
 ];
 
@@ -199,7 +198,7 @@ const App = () => {
           <Image
             resizeMode={Platform.OS === 'ios' ? 'contain' : 'center'}
             style={styles.wrapStamp}
-            source={require('./images/stamp.png')}
+            source={require('./images/stamp.jpg')}
           />
         </ViewShot>
 
@@ -207,7 +206,7 @@ const App = () => {
           <Image
             resizeMode={Platform.OS === 'ios' ? 'contain' : 'center'}
             style={styles.wrapImg}
-            source={require('./images/80m.png')}
+            source={require('./images/80m.jpg')}
           />
         </ViewShot>
         
