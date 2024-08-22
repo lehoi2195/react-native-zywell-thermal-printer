@@ -1,6 +1,10 @@
 # react-native-zywell-thermal-printer
 
-Native bridge for Zywell Thermal printer
+Native bridge for Zywell Thermal printer https://www.zywell.net/download
+
+Compatible with thermal printers, Bluetooth printers, LAN printers, ...
+
+Since this library serves personal purposes, there will not be many updates. If there are any updates, please create a pull request or an issue. Thank you.
 
 ## Installation
 
@@ -121,9 +125,6 @@ Disconnect from a network printer.
 Please read the code in `ZywellThermalPrinterPackage.java` and `ZywellThermalPrinter.mm` for more APIs provided by the package, or you can check the Example directory.
 
 Ex functions such as: `printText`, `isConnect`, `readBuffer`, `clearBuffer`, `disconnectAll`, `print once`, and `print multiple`, ...
-
-Since this library serves personal purposes, there will not be many updates. If there are any updates, please create a pull request or an issue. Thank you.
-
 
 
 ## Contributing
