@@ -1,18 +1,26 @@
 # react-native-zywell-thermal-printer
 
-Native bridge for Zywell Thermal printer https://www.zywell.net/download
+Native bridge for Zywell Thermal printer [Zywell Official Site](https://www.zywell.net/download)
 
-Compatible with thermal printers, Bluetooth printers, LAN printers, ...
+## Features
+
+- Easy integration with Zywell thermal printers
+- Supports both iOS and Android
+- High performance and reliability
+  Compatible with thermal printers, Bluetooth printers, LAN printers, and more.(print text, print image,... With size 80mm, 58mm, A4 with customize, ...)
 
 Since this library serves personal purposes, there will not be many updates. If there are any updates, please create a pull request or an issue. Thank you.
 
 ## Installation
 
-```sh
+```bash
 npm install react-native-zywell-thermal-printer
+# or
+yarn add react-native-zywell-thermal-printer
 ```
 
 Add the following permissions to your `AndroidManifest.xml`:
+
 ```js
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -26,6 +34,7 @@ Add the following permissions to your `AndroidManifest.xml`:
 <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 ```
+
 Please check for additional permissions required by the library.
 
 https://www.npmjs.com/package/react-native-bluetooth-escpos-printer
@@ -33,8 +42,6 @@ https://www.npmjs.com/package/react-native-bluetooth-escpos-printer
 https://www.npmjs.com/package/react-native-bluetooth-state-manager
 
 https://github.com/HeligPfleigh/react-native-thermal-receipt-printer
-
-
 
 ## Usage
 
@@ -60,7 +67,10 @@ ZywellPrinter.connectNet('192.168.xx.xxx')
   });
 
 // Print an image
-ZywellPrinter.printPic('00:11:22:33:FF:EE', 'path/to/image.png', { width: 200, height: 200 })
+ZywellPrinter.printPic('00:11:22:33:FF:EE', 'path/to/image.png', {
+  width: 200,
+  height: 200,
+})
   .then(() => {
     console.log('Printed image');
   })
@@ -86,7 +96,6 @@ ZywellPrinter.disconnectNet('192.168.xx.xxx')
     console.error('Failed to disconnect from network printer', error);
   });
 ```
-
 
 ## API
 
@@ -125,7 +134,6 @@ Disconnect from a network printer.
 Please read the code in `ZywellThermalPrinterPackage.java` and `ZywellThermalPrinter.mm` for more APIs provided by the package, or you can check the Example directory.
 
 Ex functions such as: `printText`, `isConnect`, `readBuffer`, `clearBuffer`, `disconnectAll`, `print once`, and `print multiple`, ...
-
 
 ## Contributing
 

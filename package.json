@@ -1,7 +1,7 @@
 {
   "name": "react-native-zywell-thermal-printer",
-  "version": "0.1.22",
-  "description": "Native bridge for Zywell Thermal printer",
+  "version": "1.0.1",
+  "description": "Native bridge for Zywell Thermal printer in React Native applications",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/index.d.ts",
@@ -53,9 +53,14 @@
     "zywell react native",
     "react native zywell",
     "zywell thermal printer",
-    "zywell printer"
+    "zywell printer",
+    "thermal printer",
+    "react native printer"
   ],
-  "repository": "https://github.com/lehoi2195/react-native-zywell-thermal-printer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lehoi2195/react-native-zywell-thermal-printer.git"
+  },
   "author": "hoi.le <hoi.le.van@sobanhang.com> (https://github.com/lehoi2195)",
   "license": "MIT",
   "bugs": {

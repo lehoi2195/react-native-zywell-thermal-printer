@@ -329,9 +329,9 @@ PODS:
   - React-jsinspector (0.71.3)
   - React-logger (0.71.3):
     - glog
-  - react-native-view-shot (3.7.0):
+  - react-native-view-shot (3.8.0):
     - React-Core
-  - react-native-zywell-thermal-printer (0.1.9):
+  - react-native-zywell-thermal-printer (1.0.1):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - React-perflogger (0.71.3)
@@ -418,7 +418,7 @@ PODS:
     - React-jsi (= 0.71.3)
     - React-logger (= 0.71.3)
     - React-perflogger (= 0.71.3)
-  - RNPermissions (3.8.4):
+  - RNPermissions (3.10.1):
     - React-Core
   - SocketRocket (0.6.1)
   - Yoga (1.14.0)
@@ -617,8 +617,8 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 515b703d23ffadeac7687bc2d12fb08b90f0aaa1
   React-jsinspector: 9f7c9137605e72ca0343db4cea88006cb94856dd
   React-logger: 957e5dc96d9dbffc6e0f15e0ee4d2b42829ff207
-  react-native-view-shot: f5507655f122e6b104888a11130f267a427f0d57
-  react-native-zywell-thermal-printer: 616106082b1032f7f735f5e50236ba9d10ba00ea
+  react-native-view-shot: 6b7ed61d77d88580fed10954d45fad0eb2d47688
+  react-native-zywell-thermal-printer: 389b14bdf32a34e96fa85f7f88ead5c3aecd930e
   React-perflogger: af8a3d31546077f42d729b949925cc4549f14def
   React-RCTActionSheet: 57cc5adfefbaaf0aae2cf7e10bccd746f2903673
   React-RCTAnimation: 11c61e94da700c4dc915cf134513764d87fc5e2b
@@ -632,11 +632,11 @@ SPEC CHECKSUMS:
   React-RCTVibration: 5199a180d04873366a83855de55ac33ce60fe4d5
   React-runtimeexecutor: 7bf0dafc7b727d93c8cb94eb00a9d3753c446c3e
   ReactCommon: 6f65ea5b7d84deb9e386f670dd11ce499ded7b40
-  RNPermissions: 841e799112a21728119506cbc506a848a1efc4aa
+  RNPermissions: 847e84095ca99b9f6036d38ff8c4d7e1554fcc6f
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 5ed1699acbba8863755998a4245daa200ff3817b
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
 PODFILE CHECKSUM: 4788df9f1e1069dc2736edbd38f26742c8456cac
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.15.2
