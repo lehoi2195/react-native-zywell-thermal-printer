@@ -1,3 +1,5 @@
+> Maintenance Notice: This library was originally built to serve an internal project at my previous company and is no longer actively maintained. If it works for your use case, please consider using the optimized and actively maintained version managed by the current team: [@finan-me/react-native-zywell-thermal-printer](https://www.npmjs.com/package/@finan-me/react-native-zywell-thermal-printer)
+
 # react-native-zywell-thermal-printer
 
 Native bridge for Zywell Thermal printer [Zywell Official Site](https://www.zywell.net/download)
